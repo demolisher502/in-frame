@@ -16,13 +16,31 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    /* Play the logo intro once per visit; skip it on later page loads and for reduced motion */
+    try {
+      if (sessionStorage.getItem("introSeen") || matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("no-intro");
+      sessionStorage.setItem("introSeen", "1");
+    } catch (e) {}
+  </script>
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="if-logo" viewBox="0 0 358 349">
+      <path d="M0 0h218v81H0zM287 0h71v81h-71zM0 141h358v79H0zM144 220h72v123h-72zM286 220h72v129h-72z"/>
+    </symbol>
+  </svg>
+
+  <div class="intro" id="intro" aria-hidden="true">
+    <svg class="intro__logo" viewBox="0 0 358 349"><use href="#if-logo"/></svg>
+  </div>
+  <noscript><style>.intro{display:none}</style></noscript>
+
   <a class="skip" href="#trabajo">Saltar al contenido</a>
 
   <header class="nav" id="nav">
     <a href="#top" class="brand" aria-label="In Frame, inicio">
-      <span class="brand__mark" aria-hidden="true"></span>In Frame
+      <svg class="brand__mark" viewBox="0 0 358 349" aria-hidden="true"><use href="#if-logo"/></svg>In Frame
     </a>
     <nav class="nav__links" id="menu" aria-label="Principal">
       <a href="#trabajo">Trabajo</a>

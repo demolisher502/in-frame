@@ -49,6 +49,12 @@ const cover = (p) => `assets/work/${p.id}.${p.ext}`;
 const igUrl = (p) => `https://www.instagram.com/${p.type === "video" ? "reel" : "p"}/${p.id}/`;
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* Logo intro: remove it once it has played (timer is a safety net if animations are throttled) */
+const intro = $("#intro");
+const endIntro = () => intro.remove();
+intro.addEventListener("animationend", (e) => { if (e.animationName === "introVeil") endIntro(); });
+setTimeout(endIntro, 3500);
+
 /* WhatsApp links with a prefilled message */
 $$("[data-wa]").forEach((a) => (a.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(WA_MESSAGE)}`));
 $("#year").textContent = new Date().getFullYear();

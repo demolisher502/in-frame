@@ -60,15 +60,15 @@ em { font-style: italic; color: var(--accent); }
 }
 .nav.is-stuck { background: rgba(14, 13, 11, 0.82); backdrop-filter: blur(14px); border-color: var(--line); padding-block: 12px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font: 400 24px/1 var(--serif); }
-.brand__mark {
-  width: 18px; height: 14px; flex: none;
-  background:
-    linear-gradient(var(--accent), var(--accent)) 0 0 / 6px 1.5px,
-    linear-gradient(var(--accent), var(--accent)) 0 0 / 1.5px 6px,
-    linear-gradient(var(--accent), var(--accent)) 100% 100% / 6px 1.5px,
-    linear-gradient(var(--accent), var(--accent)) 100% 100% / 1.5px 6px;
-  background-repeat: no-repeat;
-}
+.brand__mark { width: 22px; height: 21.5px; flex: none; fill: var(--accent); }
+
+/* ---------- Logo intro ---------- */
+.intro { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: var(--bg); animation: introVeil 0.7s var(--ease) 1.5s forwards; }
+.intro__logo { width: min(40vw, 240px); fill: var(--text); opacity: 0; transform: scale(0.86); animation: introIn 0.8s cubic-bezier(0.16, 0.84, 0.24, 1) 0.1s forwards, introOut 0.6s cubic-bezier(0.65, 0, 0.35, 1) 1.3s forwards; }
+.no-intro .intro { display: none; }
+@keyframes introIn { to { opacity: 1; transform: none; } }
+@keyframes introOut { to { opacity: 0; transform: scale(0.2); } }
+@keyframes introVeil { to { opacity: 0; visibility: hidden; } }
 .nav__links { display: flex; align-items: center; gap: 30px; font: 500 14px var(--sans); }
 .nav__links a:not(.btn) { color: rgba(242, 239, 232, 0.78); position: relative; padding: 6px 0; }
 .nav__links a:not(.btn)::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.35s var(--ease); }
@@ -264,5 +264,6 @@ em { font-style: italic; color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  .intro { display: none; }
   .js .reveal { opacity: 1; transform: none; }
 }
