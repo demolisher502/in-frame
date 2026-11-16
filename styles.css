@@ -167,8 +167,8 @@ em { font-style: normal; color: var(--accent); }
 .marquee:hover .marquee__track { animation-play-state: paused; }
 .marquee__track li { display: flex; align-items: center; font: 700 clamp(1.75rem, 3.2vw, 2.75rem)/1.1 var(--display); letter-spacing: 0.01em; white-space: nowrap; padding-right: 28px; color: color-mix(in srgb, var(--text) 80%, transparent); }
 .marquee__track li::after { content: ""; width: 0.26em; height: 0.26em; background: var(--accent); margin-left: 28px; }
-/* logos take the place of the name: same height as the lettering, shown in the text colour */
-.marquee__track li img { height: 1.1em; width: auto; max-width: 5em; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.8; }
+/* logos take the place of the name: same height as the lettering, in their own colours */
+.marquee__track li img { height: 1.1em; width: auto; max-width: 5em; object-fit: contain; }
 @keyframes slide { to { transform: translateX(-50%); } }
 
 /* ---------- Quote ---------- */
