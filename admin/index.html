@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="dark">
+  <title>In Frame — Administrar</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <header class="bar">
+    <a class="bar__brand" href="/">
+      <svg viewBox="0 0 358 349" aria-hidden="true"><path d="M0 0h218v81H0zM287 0h71v81h-71zM0 141h358v79H0zM144 220h72v123h-72zM286 220h72v129h-72z"/></svg>
+      In Frame <span>Administrar</span>
+    </a>
+    <div class="bar__right" id="barRight" hidden>
+      <span id="who"></span>
+      <a class="btn btn--ghost" href="/" target="_blank" rel="noopener">Ver sitio ↗</a>
+      <button class="btn btn--ghost" id="logout" type="button">Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <p class="status" id="boot">Cargando…</p>
+
+    <!-- LOGIN -->
+    <section class="panel panel--narrow" id="loginView" hidden>
+      <h1>Entrar</h1>
+      <p class="hint">Usa el correo y la contraseña de tu cuenta de administrador.</p>
+      <form id="loginForm" novalidate>
+        <label>Correo
+          <input type="email" id="email" autocomplete="username" required>
+        </label>
+        <label>Contraseña
+          <input type="password" id="password" autocomplete="current-password" required>
+        </label>
+        <p class="error" id="loginError" role="alert" hidden></p>
+        <button class="btn" type="submit" id="loginBtn">Entrar</button>
+      </form>
+    </section>
+
+    <!-- SIGNED IN, NOT AN ADMIN -->
+    <section class="panel panel--narrow" id="deniedView" hidden>
+      <h1>Sin permiso</h1>
+      <p>Tu cuenta inició sesión, pero todavía no está autorizada para editar el sitio. Pídele al dueño del proyecto que la autorice.</p>
+    </section>
+
+    <!-- EDITOR -->
+    <div id="editorView" hidden>
+      <section class="panel">
+        <div class="panel__head">
+          <div>
+            <h1>Proyectos</h1>
+            <p class="hint">El orden de esta lista es el orden en el sitio. Los cambios se publican al instante.</p>
+          </div>
+          <button class="btn" id="newProject" type="button">+ Nuevo proyecto</button>
+        </div>
+        <ul class="rows" id="projectRows"></ul>
+        <p class="empty" id="noProjects" hidden>Todavía no hay proyectos. Crea el primero con “Nuevo proyecto”.</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel__head">
+          <div>
+            <h2>Clientes</h2>
+            <p class="hint">Los nombres que pasan en la franja debajo de la portada.</p>
+          </div>
+        </div>
+        <ul class="rows rows--clients" id="clientRows"></ul>
+        <form class="add" id="clientForm">
+          <label class="sr" for="clientName">Nombre del cliente</label>
+          <input id="clientName" maxlength="80" placeholder="Nombre del cliente" required>
+          <button class="btn" type="submit">Agregar</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <!-- PROJECT FORM -->
+  <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
+    <form id="projectForm" novalidate>
+      <h2 id="sheetTitle">Nuevo proyecto</h2>
+
+      <div class="cover">
+        <img id="coverPreview" alt="" hidden>
+        <div>
+          <label for="cover">Imagen de portada</label>
+          <input type="file" id="cover" accept="image/jpeg,image/png,image/webp">
+          <p class="hint">Vertical funciona mejor (4:5 o 9:16). Se reduce y optimiza sola al subirla.</p>
+        </div>
+      </div>
+
+      <label>Título
+        <input id="fTitle" maxlength="120" required placeholder="Wendy’s — Lanzamiento Tenders">
+      </label>
+      <label>Detalle
+        <input id="fMeta" maxlength="200" placeholder="Cobertura de evento · con Hoenn">
+      </label>
+      <div class="two">
+        <label>Tipo
+          <select id="fType">
+            <option value="video">Video</option>
+            <option value="foto">Foto</option>
+            <option value="retrato">Retrato</option>
+          </select>
+        </label>
+        <label>Año
+          <input id="fYear" type="number" min="1990" max="2100" inputmode="numeric">
+        </label>
+      </div>
+      <label>Enlace (opcional)
+        <input id="fLink" type="url" placeholder="https://www.instagram.com/reel/…">
+        <span class="hint">Si es un reel o post de Instagram y el tipo es Video, se reproduce dentro del sitio.</span>
+      </label>
+
+      <fieldset class="checks">
+        <legend class="sr">Opciones</legend>
+        <label><input type="checkbox" id="fPublished"> Publicado</label>
+        <label><input type="checkbox" id="fFeatured"> Destacado (tarjeta grande)</label>
+        <label><input type="checkbox" id="fHero"> Mostrar en la portada</label>
+      </fieldset>
+
+      <p class="error" id="formError" role="alert" hidden></p>
+      <div class="sheet__actions">
+        <button class="btn btn--ghost" type="button" id="cancelProject">Cancelar</button>
+        <button class="btn" type="submit" id="saveProject">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <p class="toast" id="toast" role="status" aria-live="polite"></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="/config.js"></script>
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

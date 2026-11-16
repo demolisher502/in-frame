@@ -1,15 +1,14 @@
 /* ------------------------------------------------------------------
-   The projects and client names live in index.html (the #grid cards and
-   the #clients list) so they work without JavaScript and are readable by
-   crawlers. This file only enhances them: filters, lightbox, motion.
+   Content comes from the database (edited at /admin). The cards and client
+   names written in index.html are the fallback: they show instantly, work
+   without JavaScript, and are replaced once the live content has loaded.
 ------------------------------------------------------------------- */
 
-/* Covers shown in the hero wall, one array per column (Instagram shortcodes) */
+/* Fallback hero wall, used until the database answers (Instagram shortcodes) */
 const WALL = [
-  ["DZqhDx_pwn-", "DcPAuYWiaV_", "DM-ivGzpY6K", "DUgnbtbCfd5"],
-  ["DN6wpaIkVMU", "DPrdmBtgVTj", "C8iAuPMP0PC", "DaMSg-DjEdr"],
-  ["DNZZu9HMVtt", "DUb9KJmCTru", "DY-rGuBJqco", "DZ749TVFhTV"],
-];
+  "DZqhDx_pwn-", "DN6wpaIkVMU", "DNZZu9HMVtt", "DcPAuYWiaV_", "DPrdmBtgVTj", "DUb9KJmCTru",
+  "DM-ivGzpY6K", "C8iAuPMP0PC", "DY-rGuBJqco", "DUgnbtbCfd5", "DaMSg-DjEdr", "DZ749TVFhTV",
+].map((id) => `assets/work/thumb/${id}.webp`);
 
 const WHATSAPP = "18295602997"; // country code included
 const WA_MESSAGE = "Hola Juan, vi tu portafolio de In Frame y me gustaría hablar sobre un proyecto.";
@@ -20,7 +19,12 @@ root.classList.add("js");
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const LABEL = { video: "Video", foto: "Foto", retrato: "Retrato" };
+const PLAY = '<svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>';
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeImg = (u) => (/^(https:\/\/|assets\/)/.test(u || "") ? u : "");
+const safeLink = (u) => (/^https:\/\//.test(u || "") ? u : "");
+const igEmbed = (u) => { const m = /^https:\/\/www\.instagram\.com\/(reel|p)\/([\w-]+)/.exec(u || ""); return m ? `https://www.instagram.com/${m[1]}/${m[2]}/embed/` : ""; };
 
 /* Logo intro: plays once, any click or key skips it, timer is a safety net */
 const intro = $("#intro");
@@ -34,42 +38,85 @@ setTimeout(endIntro, 3500);
 $$("[data-wa]").forEach((a) => (a.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(WA_MESSAGE)}`));
 $("#year").textContent = new Date().getFullYear();
 
-/* Hero wall (decorative, small thumbnails, low priority) */
-$("#wall").innerHTML = WALL.map((col) => {
-  const imgs = col.map((id) => `<img src="assets/work/thumb/${id}.webp" alt="" decoding="async" fetchpriority="low" width="540" height="720">`).join("");
-  return `<div class="wall__col"><div class="wall__track">${imgs}${imgs}</div></div>`;
-}).join("");
+/* Reveal once (never hides again) */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+  });
+}, { rootMargin: "0px 0px -6% 0px" });
+$$(".reveal").forEach((el) => io.observe(el));
 
-/* Clients marquee: duplicate the list once for a seamless loop */
+/* ---------- Hero wall (decorative thumbnails in three looping columns) ---------- */
+let wallKey = "";
+function renderWall(thumbs) {
+  const list = thumbs.map(safeImg).filter(Boolean);
+  if (list.length < 3 || list.join() === wallKey) return;
+  wallKey = list.join();
+  const cols = [[], [], []];
+  list.forEach((src, i) => cols[i % 3].push(src));
+  $("#wall").innerHTML = cols.map((col) => {
+    const set = col.length < 3 ? [...col, ...col] : col; // keep each column tall enough to loop
+    const imgs = set.map((src) => `<img src="${esc(src)}" alt="" decoding="async" fetchpriority="low" width="540" height="720">`).join("");
+    return `<div class="wall__col"><div class="wall__track">${imgs}${imgs}</div></div>`;
+  }).join("");
+}
+renderWall(WALL);
+
+/* ---------- Clients marquee (list duplicated once for a seamless loop) ---------- */
 const clients = $("#clients");
-$$("li", clients).forEach((li) => {
-  const copy = li.cloneNode(true);
-  copy.setAttribute("aria-hidden", "true");
-  clients.append(copy);
-});
+function renderClients(names) {
+  if (names) clients.innerHTML = names.map((n) => `<li>${esc(n)}</li>`).join("");
+  $$("li", clients).forEach((li) => {
+    const copy = li.cloneNode(true);
+    copy.setAttribute("aria-hidden", "true");
+    clients.append(copy);
+  });
+}
+const staticClients = $$("li", clients).map((li) => li.textContent);
+renderClients();
 
-/* Projects are read from the cards in the page */
+/* ---------- Projects, filters ---------- */
 const grid = $("#grid");
-const cards = $$(".card", grid);
-const PROJECTS = cards.map((card) => ({
-  card,
+const chips = $("#chips");
+let PROJECTS = [];
+let visible = [];
+
+function cardHTML(p) {
+  const thumb = safeImg(p.thumb), full = safeImg(p.full), link = safeLink(p.link);
+  const alt = esc(`${p.title} — ${p.meta}`);
+  return `<a class="card in${p.featured ? " card--big" : ""}" ${link ? `href="${esc(link)}" target="_blank" rel="noopener"` : 'href="#trabajo"'} data-type="${esc(p.type)}">
+    <img src="${esc(thumb)}" srcset="${esc(thumb)} 540w, ${esc(full)} 1200w" sizes="${p.featured ? "(max-width: 640px) 100vw, 50vw" : "(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw"}" alt="${alt}" loading="lazy" decoding="async">
+    <span class="card__badge">${p.type === "video" ? PLAY : ""}${LABEL[p.type] || ""}</span>
+    <span class="card__info"><strong>${esc(p.title)}</strong><small>${esc([p.meta, p.year].filter(Boolean).join(" · "))}</small></span>
+  </a>`;
+}
+
+function setProjects(list, rerender) {
+  if (rerender) grid.innerHTML = list.map(cardHTML).join("");
+  const cards = $$(".card", grid);
+  PROJECTS = list.map((p, i) => ({ ...p, card: cards[i] }));
+  visible = PROJECTS.map((_, i) => i);
+  grid.classList.remove("is-filtered");
+  const types = ["todos", ...["video", "foto", "retrato"].filter((t) => PROJECTS.some((p) => p.type === t))];
+  chips.innerHTML = types.map((t, i) => {
+    const n = t === "todos" ? PROJECTS.length : PROJECTS.filter((p) => p.type === t).length;
+    return `<button class="chip" type="button" data-filter="${t}" aria-pressed="${i === 0}">${t === "todos" ? "Todos" : LABEL[t]}<sup>${n}</sup></button>`;
+  }).join("");
+}
+
+/* Start from the cards already in the page */
+const fromDom = $$(".card", grid).map((card) => ({
   type: card.dataset.type,
   title: card.dataset.title,
   meta: card.dataset.meta,
   year: card.dataset.year,
   full: card.dataset.full,
   thumb: $("img", card).getAttribute("src"),
-  ig: card.href,
+  link: card.href,
+  featured: card.classList.contains("card--big"),
 }));
+setProjects(fromDom, false);
 
-/* Filters */
-const chips = $("#chips");
-const types = ["todos", ...new Set(PROJECTS.map((p) => p.type))];
-chips.innerHTML = types.map((t, i) => {
-  const n = t === "todos" ? PROJECTS.length : PROJECTS.filter((p) => p.type === t).length;
-  return `<button class="chip" type="button" data-filter="${t}" aria-pressed="${i === 0}">${t === "todos" ? "Todos" : LABEL[t]}<sup>${n}</sup></button>`;
-}).join("");
-let visible = PROJECTS.map((_, i) => i);
 chips.addEventListener("click", (e) => {
   const chip = e.target.closest(".chip");
   if (!chip) return;
@@ -84,20 +131,48 @@ chips.addEventListener("click", (e) => {
   });
 });
 
-/* Lightbox — photos show full size, videos play through Instagram's embed.
-   Cards are real links to Instagram; a plain click opens the lightbox instead. */
+/* ---------- Live content from the database ---------- */
+const sig = (list) => JSON.stringify(list.map((p) => [p.title, p.meta, String(p.year ?? ""), p.type, p.thumb, p.full, p.link, !!p.featured]));
+async function loadLive() {
+  const cfg = window.IF_CONFIG;
+  if (!cfg) return;
+  const get = (path) => fetch(`${cfg.supabaseUrl}/rest/v1/${path}`, { headers: { apikey: cfg.supabaseKey } }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
+  try {
+    const [rows, names] = await Promise.all([
+      get("projects?select=title,meta,year,type,link,cover_url,thumb_url,featured,in_hero&published=is.true&order=position.asc"),
+      get("clients?select=name&order=position.asc"),
+    ]);
+    if (rows.length) {
+      const live = rows.map((r) => ({ type: r.type, title: r.title, meta: r.meta, year: r.year, full: r.cover_url, thumb: r.thumb_url, link: r.link || "", featured: r.featured, inHero: r.in_hero }));
+      if (sig(live) !== sig(fromDom)) setProjects(live, true);
+      const hero = live.filter((p) => p.inHero);
+      renderWall((hero.length >= 3 ? hero : live).map((p) => p.thumb));
+    }
+    const liveNames = names.map((n) => n.name);
+    if (liveNames.length && liveNames.join("|") !== staticClients.join("|")) renderClients(liveNames);
+  } catch (e) { /* offline or database unreachable: the built-in content stays */ }
+}
+loadLive();
+
+/* ---------- Lightbox ----------
+   Photos show full size. Videos with an Instagram link play through Instagram's embed.
+   Cards are real links; a plain click opens the lightbox instead. */
 const lb = $("#lightbox");
 const lbMedia = $("#lbMedia");
 let current = 0;
 function show(i) {
   current = i;
   const p = PROJECTS[i];
-  lbMedia.innerHTML = p.type === "video"
-    ? `<iframe src="${p.ig}embed/" title="${p.title}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="background-image:url('${p.thumb}')"></iframe>`
-    : `<img src="${p.full}" alt="${p.title} — ${p.meta}">`;
+  const embed = p.type === "video" ? igEmbed(p.link) : "";
+  lbMedia.innerHTML = embed
+    ? `<iframe src="${esc(embed)}" title="${esc(p.title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="background-image:url('${esc(safeImg(p.thumb))}')"></iframe>`
+    : `<img src="${esc(safeImg(p.full))}" alt="${esc(`${p.title} — ${p.meta}`)}">`;
   $("#lbTitle").textContent = p.title;
-  $("#lbMeta").textContent = `${LABEL[p.type]} · ${p.meta} · ${p.year}`;
-  $("#lbLink").href = p.ig;
+  $("#lbMeta").textContent = [LABEL[p.type], p.meta, p.year].filter(Boolean).join(" · ");
+  const link = safeLink(p.link);
+  const a = $("#lbLink");
+  a.hidden = !link;
+  if (link) { a.href = link; a.textContent = /instagram\.com/.test(link) ? "Ver en Instagram ↗" : "Ver proyecto ↗"; }
 }
 function step(d) {
   const pos = visible.indexOf(current);
@@ -105,9 +180,9 @@ function step(d) {
 }
 grid.addEventListener("click", (e) => {
   const card = e.target.closest(".card");
-  if (!card || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return; // let modified clicks open Instagram
+  if (!card || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return; // let modified clicks follow the link
   e.preventDefault();
-  show(cards.indexOf(card));
+  show(PROJECTS.findIndex((p) => p.card === card));
   lb.showModal();
 });
 $("#lbClose").addEventListener("click", () => lb.close());
@@ -120,7 +195,7 @@ lb.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") step(1);
 });
 
-/* Nav: sticky state */
+/* ---------- Nav: sticky state ---------- */
 const nav = $("#nav");
 const onScroll = () => nav.classList.toggle("is-stuck", window.scrollY > 24);
 onScroll();
@@ -153,14 +228,6 @@ const spy = new IntersectionObserver((entries) => {
   });
 }, { rootMargin: "-45% 0px -50% 0px" });
 $$("main section[id]").forEach((s) => spy.observe(s));
-
-/* Reveal once (never hides again) */
-const io = new IntersectionObserver((entries) => {
-  entries.forEach((en) => {
-    if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
-  });
-}, { rootMargin: "0px 0px -6% 0px" });
-$$(".reveal").forEach((el) => io.observe(el));
 
 /* ---------- Motion: pause button, and stop looping animation that is off screen ---------- */
 const hero = $(".hero");

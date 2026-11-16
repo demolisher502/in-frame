@@ -4,15 +4,28 @@ Redesign concept for [in-frame-eta.vercel.app](https://in-frame-eta.vercel.app/)
 
 Static site — no build step. Open `index.html` or run `npx serve .`.
 
-## Editing content
+## Editing content: the admin page
 
-- **Projects** — each one is an `<a class="card">` inside `#grid` in `index.html`. The `href` is the Instagram post, `data-full` is the full-size image, and the `<img>` points at the small version in `assets/work/thumb/`. Videos open in the lightbox through Instagram's embed player; photos open full size. Add `card--big` to feature one.
-- **Client names** — the `<li>` items in `#clients` in `index.html`.
-- **Hero wall** — the `WALL` list at the top of `main.js` (Instagram shortcodes, three columns).
+Projects and client names are edited at **`/admin`** — sign in, then add, edit, reorder, hide or delete projects, upload cover images, choose which appear in the hero, and manage the client strip. Changes are live immediately.
+
+How it works:
+
+- Content lives in a Supabase project (`in-frame`): tables `projects` and `clients`, and a public `media` storage bucket for uploaded covers. The connection details are in `config.js` (a publishable key, safe to ship).
+- The public page loads its content from there on every visit. The cards and names written in `index.html` are only a fallback (first paint, no-JavaScript, database unreachable) — they do **not** update when the admin page is used.
+- Security is enforced by the database, not the page: anyone can read published projects; only users listed in the `admins` table can write or upload.
+
+### Giving someone access
+
+1. Supabase dashboard → Authentication → Users → **Add user** (email + password, "Auto Confirm User" on).
+2. SQL editor: `insert into public.admins (user_id) select id from auth.users where email = 'their@email';`
+
+To remove access, delete their row from `admins` (or delete the user).
+
+## Editing everything else
+
+- **Texts** (hero, services, bio, quote, contact) — directly in `index.html`.
 - **WhatsApp** — `WHATSAPP` (number with country code) and `WA_MESSAGE` at the top of `main.js`.
 - **Domain** — if the site moves, update the canonical, `og:url` and `og:image` URLs in the `<head>` of `index.html`.
-
-To add an image: put the full version in `assets/work/` and a ~540px-wide WebP of it in `assets/work/thumb/` with the same name.
 
 ## Where the content came from
 
