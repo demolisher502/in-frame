@@ -264,6 +264,8 @@ em { font-style: normal; color: var(--accent); }
 .lightbox__media img { max-height: calc(100dvh - 210px); width: auto; max-width: 100%; border-radius: 3px; }
 .lightbox__media iframe { width: min(100%, 420px); height: calc(100dvh - 230px); max-height: 760px; border: 0; border-radius: 6px; background: var(--text) center / cover no-repeat; }
 .lightbox__media img { max-height: calc(100dvh - 230px); }
+.lightbox__media iframe.is-wide { width: min(100%, calc((100dvh - 250px) * 16 / 9)); height: auto; aspect-ratio: 16 / 9; max-height: none; background-color: var(--bg); }
+.lightbox figcaption .lightbox__count { color: var(--text); font-variant-numeric: tabular-nums; }
 .lightbox figcaption { text-align: center; }
 .lightbox figcaption a { margin-top: 2px; font-size: 0.8125rem; font-weight: 600; }
 .lightbox figcaption h3 { font: 700 1.875rem/1.05 var(--display); letter-spacing: 0.01em; }

@@ -24,7 +24,15 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeImg = (u) => (/^(https:\/\/|assets\/)/.test(u || "") ? u : "");
 const safeLink = (u) => (/^https:\/\//.test(u || "") ? u : "");
-const igEmbed = (u) => { const m = /^https:\/\/www\.instagram\.com\/(reel|p)\/([\w-]+)/.exec(u || ""); return m ? `https://www.instagram.com/${m[1]}/${m[2]}/embed/` : ""; };
+/* Player address for a video link, or null when it is not one we can play in the page */
+function embedOf(u = "") {
+  let m;
+  if ((m = /^https:\/\/(?:www\.)?instagram\.com\/(reels?|p)\/([\w-]+)/.exec(u))) return { src: `https://www.instagram.com/${m[1] === "p" ? "p" : "reel"}/${m[2]}/embed/`, host: "Instagram" };
+  if ((m = /^https:\/\/(?:www\.|m\.)?youtube\.com\/shorts\/([\w-]{11})/.exec(u))) return { src: `https://www.youtube-nocookie.com/embed/${m[1]}`, host: "YouTube" };
+  if ((m = /^https:\/\/(?:(?:www\.|m\.)?youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/)|youtu\.be\/)([\w-]{11})/.exec(u))) return { src: `https://www.youtube-nocookie.com/embed/${m[1]}`, host: "YouTube", wide: true };
+  if ((m = /^https:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/.exec(u))) return { src: `https://player.vimeo.com/video/${m[1]}${m[2] ? `?h=${m[2]}` : ""}`, host: "Vimeo", wide: true };
+  return null;
+}
 
 /* Logo intro: plays once, any click or key skips it, timer is a safety net */
 const intro = $("#intro");
@@ -86,7 +94,7 @@ function cardHTML(p) {
   const alt = esc(`${p.title} — ${p.meta}`);
   return `<a class="card in${p.featured ? " card--big" : ""}" ${link ? `href="${esc(link)}" target="_blank" rel="noopener"` : 'href="#trabajo"'} data-type="${esc(p.type)}">
     <img src="${esc(thumb)}" srcset="${esc(thumb)} 540w, ${esc(full)} 1200w" sizes="${p.featured ? "(max-width: 640px) 100vw, 50vw" : "(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw"}" alt="${alt}" loading="lazy" decoding="async">
-    <span class="card__badge">${p.type === "video" ? PLAY : ""}${LABEL[p.type] || ""}</span>
+    <span class="card__badge">${p.type === "video" ? PLAY : ""}${LABEL[p.type] || ""}${p.media?.length ? ` +${p.media.length}` : ""}</span>
     <span class="card__info"><strong>${esc(p.title)}</strong><small>${esc([p.meta, p.year].filter(Boolean).join(" · "))}</small></span>
   </a>`;
 }
@@ -132,18 +140,21 @@ chips.addEventListener("click", (e) => {
 });
 
 /* ---------- Live content from the database ---------- */
-const sig = (list) => JSON.stringify(list.map((p) => [p.title, p.meta, String(p.year ?? ""), p.type, p.thumb, p.full, p.link, !!p.featured]));
+const sig = (list) => JSON.stringify(list.map((p) => [p.title, p.meta, String(p.year ?? ""), p.type, p.thumb, p.full, p.link, !!p.featured, p.media?.length || 0]));
 async function loadLive() {
   const cfg = window.IF_CONFIG;
   if (!cfg) return;
   const get = (path) => fetch(`${cfg.supabaseUrl}/rest/v1/${path}`, { headers: { apikey: cfg.supabaseKey } }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
   try {
-    const [rows, names] = await Promise.all([
-      get("projects?select=title,meta,year,type,link,cover_url,thumb_url,featured,in_hero&published=is.true&order=position.asc"),
+    const [rows, names, extra] = await Promise.all([
+      get("projects?select=id,title,meta,year,type,link,cover_url,thumb_url,featured,in_hero&published=is.true&order=position.asc"),
       get("clients?select=name&order=position.asc"),
+      get("project_media?select=project_id,kind,url&order=position.asc").catch(() => []), // galleries are optional
     ]);
     if (rows.length) {
-      const live = rows.map((r) => ({ type: r.type, title: r.title, meta: r.meta, year: r.year, full: r.cover_url, thumb: r.thumb_url, link: r.link || "", featured: r.featured, inHero: r.in_hero }));
+      const gallery = {};
+      extra.forEach((m) => (gallery[m.project_id] ||= []).push({ kind: m.kind, url: m.url }));
+      const live = rows.map((r) => ({ media: gallery[r.id] || [], type: r.type, title: r.title, meta: r.meta, year: r.year, full: r.cover_url, thumb: r.thumb_url, link: r.link || "", featured: r.featured, inHero: r.in_hero }));
       if (sig(live) !== sig(fromDom)) setProjects(live, true);
       const hero = live.filter((p) => p.inHero);
       renderWall((hero.length >= 3 ? hero : live).map((p) => p.thumb));
@@ -155,28 +166,44 @@ async function loadLive() {
 loadLive();
 
 /* ---------- Lightbox ----------
-   Photos show full size. Videos with an Instagram link play through Instagram's embed.
+   Each project is a short gallery: its cover (or its video, when the link can play in the page)
+   followed by any extra photos and videos. The arrows walk through it, then on to the next project.
    Cards are real links; a plain click opens the lightbox instead. */
 const lb = $("#lightbox");
 const lbMedia = $("#lbMedia");
 let current = 0;
-function show(i) {
+let slide = 0;
+function slidesOf(p) {
+  const first = p.type === "video" && embedOf(p.link) ? { kind: "video", url: p.link, poster: p.thumb } : { kind: "photo", url: p.full };
+  const rest = (p.media || []).filter((m) => (m.kind === "video" ? embedOf(m.url) : safeImg(m.url)));
+  return [first, ...rest];
+}
+function show(i, s = 0) {
   current = i;
   const p = PROJECTS[i];
-  const embed = p.type === "video" ? igEmbed(p.link) : "";
+  const slides = slidesOf(p);
+  slide = s < 0 ? slides.length - 1 : Math.min(s, slides.length - 1);
+  const item = slides[slide];
+  const embed = item.kind === "video" ? embedOf(item.url) : null;
+  const n = slides.length > 1 ? ` (${slide + 1} de ${slides.length})` : "";
   lbMedia.innerHTML = embed
-    ? `<iframe src="${esc(embed)}" title="${esc(p.title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="background-image:url('${esc(safeImg(p.thumb))}')"></iframe>`
-    : `<img src="${esc(safeImg(p.full))}" alt="${esc(`${p.title} — ${p.meta}`)}">`;
+    ? `<iframe${embed.wide ? ' class="is-wide"' : ""} src="${esc(embed.src)}" title="${esc(p.title + n)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen${item.poster ? ` style="background-image:url('${esc(safeImg(item.poster))}')"` : ""}></iframe>`
+    : `<img src="${esc(safeImg(item.url))}" alt="${esc(`${p.title} — ${p.meta}${n}`)}">`;
   $("#lbTitle").textContent = p.title;
   $("#lbMeta").textContent = [LABEL[p.type], p.meta, p.year].filter(Boolean).join(" · ");
-  const link = safeLink(p.link);
+  const count = $("#lbCount");
+  count.hidden = slides.length < 2;
+  count.textContent = `${slide + 1} / ${slides.length}`;
+  const link = safeLink(embed ? item.url : p.link);
   const a = $("#lbLink");
   a.hidden = !link;
-  if (link) { a.href = link; a.textContent = /instagram\.com/.test(link) ? "Ver en Instagram ↗" : "Ver proyecto ↗"; }
+  if (link) { a.href = link; a.textContent = `Ver ${(embedOf(link) || {}).host ? "en " + embedOf(link).host : "proyecto"} ↗`; }
 }
 function step(d) {
+  const next = slide + d;
+  if (next >= 0 && next < slidesOf(PROJECTS[current]).length) return show(current, next);
   const pos = visible.indexOf(current);
-  show(visible[(pos + d + visible.length) % visible.length]);
+  show(visible[(pos + d + visible.length) % visible.length], d < 0 ? -1 : 0);
 }
 grid.addEventListener("click", (e) => {
   const card = e.target.closest(".card");

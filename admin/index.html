@@ -115,8 +115,21 @@
       </div>
       <label>Enlace (opcional)
         <input id="fLink" type="url" placeholder="https://www.instagram.com/reel/…">
-        <span class="hint">Si es un reel o post de Instagram y el tipo es Video, se reproduce dentro del sitio.</span>
+        <span class="hint">Si el tipo es Video y el enlace es de Instagram, YouTube o Vimeo, se reproduce dentro del sitio.</span>
       </label>
+
+      <fieldset class="media">
+        <legend>Galería (opcional)</legend>
+        <p class="hint">Más fotos y videos del mismo proyecto. Se ven al abrirlo, después de la portada, en este orden.</p>
+        <ul class="media__list" id="mediaList"></ul>
+        <div class="media__add">
+          <input type="file" id="mediaFiles" accept="image/jpeg,image/png,image/webp" multiple hidden>
+          <button class="btn btn--ghost" type="button" id="addPhotos">+ Fotos</button>
+          <label class="sr" for="mediaVideo">Enlace de video</label>
+          <input id="mediaVideo" type="url" placeholder="Enlace de YouTube, Vimeo o Instagram">
+          <button class="btn btn--ghost" type="button" id="addVideo">+ Video</button>
+        </div>
+      </fieldset>
 
       <fieldset class="checks">
         <legend class="sr">Opciones</legend>

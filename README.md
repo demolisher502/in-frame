@@ -8,7 +8,11 @@ Static site — no build step. Open `index.html` or run `npx serve .`.
 
 Projects and client names are edited at **`/admin`** — sign in, then add, edit, reorder, hide or delete projects, upload cover images, choose which appear in the hero, and manage the client strip. Changes are live immediately.
 
+Each project can also have a **gallery**: extra photos (uploaded, resized in the browser) and extra video links (YouTube, Vimeo or Instagram). On the site, opening a project shows its cover or video first, then the gallery; the arrows walk through it and on to the next project. Video files are not uploaded — they stay on the video platform and play inside the page.
+
 How it works:
+
+- Gallery items live in the `project_media` table (one row per photo or video link, ordered by `position`); they are visible only while their project is published.
 
 - Content lives in a Supabase project (`in-frame`): tables `projects` and `clients`, and a public `media` storage bucket for uploaded covers. The connection details are in `config.js` (a publishable key, safe to ship).
 - The public page loads its content from there on every visit. The cards and names written in `index.html` are only a fallback (first paint, no-JavaScript, database unreachable) — they do **not** update when the admin page is used.

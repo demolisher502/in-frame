@@ -11,6 +11,13 @@ const src = (u) => (/^https:\/\//.test(u || "") ? u : "/" + (u || "")); // seede
 let projects = [];
 let clients = [];
 let editing = null; // project being edited, or null for a new one
+let media = {};     // saved gallery items, by project id
+let items = [];     // gallery as shown in the open form (saved rows plus not-yet-saved additions)
+let removed = [];   // saved gallery rows to delete when the form is saved
+const videoHost = (u) =>
+  /^https:\/\/((www|m)\.)?(youtube\.com\/(watch\?|shorts\/|embed\/)|youtu\.be\/)/.test(u) ? "YouTube"
+  : /^https:\/\/(www\.|player\.)?vimeo\.com\/(video\/)?\d+/.test(u) ? "Vimeo"
+  : /^https:\/\/(www\.)?instagram\.com\/(reels?|p)\/[\w-]+/.test(u) ? "Instagram" : "";
 
 /* ---------- small helpers ---------- */
 let toastTimer;
@@ -70,9 +77,14 @@ sb.auth.onAuthStateChange((event, session) => {
 
 /* ---------- projects ---------- */
 async function loadProjects() {
-  const { data, error } = await sb.from("projects").select("*").order("position");
-  if (error) return fail(error, "cargar los proyectos");
+  const [{ data, error }, m] = await Promise.all([
+    sb.from("projects").select("*").order("position"),
+    sb.from("project_media").select("*").order("position"),
+  ]);
+  if (error || m.error) return fail(error || m.error, "cargar los proyectos");
   projects = data;
+  media = {};
+  m.data.forEach((row) => (media[row.project_id] ||= []).push(row));
   renderProjects();
 }
 
@@ -83,7 +95,7 @@ function renderProjects() {
       <img class="row__thumb" src="${esc(src(p.thumb_url))}" alt="" loading="lazy">
       <div class="row__text">
         <p class="row__title">${esc(p.title)}</p>
-        <p class="row__meta">${esc([LABEL[p.type], p.meta, p.year].filter(Boolean).join(" · "))}</p>
+        <p class="row__meta">${esc([LABEL[p.type], p.meta, p.year, media[p.id]?.length ? `Galería: ${media[p.id].length}` : ""].filter(Boolean).join(" · "))}</p>
       </div>
       <div class="row__flags">
         <label><input type="checkbox" data-flag="published" ${p.published ? "checked" : ""}> Publicado</label>
@@ -122,7 +134,8 @@ $("#projectRows").addEventListener("click", async (e) => {
     if (!confirm(`¿Eliminar “${p.title}”? Esto no se puede deshacer.`)) return;
     const { error } = await sb.from("projects").delete().eq("id", p.id);
     if (error) return fail(error, "eliminar el proyecto");
-    removeUploads(p);
+    removeUploads([p.cover_url, p.thumb_url, ...(media[p.id] || []).flatMap((x) => [x.url, x.thumb_url])]);
+    delete media[p.id];
     projects.splice(i, 1);
     renderProjects();
     toast("Proyecto eliminado");
@@ -162,7 +175,94 @@ function openSheet(p) {
   prev.hidden = !p;
   if (p) prev.src = src(p.thumb_url);
   $("#formError").hidden = true;
+  items.forEach((x) => x.preview && URL.revokeObjectURL(x.preview));
+  items = (p ? media[p.id] || [] : []).map((x) => ({ ...x }));
+  removed = [];
+  $("#mediaVideo").value = "";
+  renderMedia();
   sheet.showModal();
+}
+const formError = (msg) => { const err = $("#formError"); err.textContent = msg; err.hidden = !msg; };
+
+/* ---------- gallery inside the project form (applied when the form is saved) ---------- */
+function renderMedia() {
+  $("#mediaList").innerHTML = items.map((x, i) => `
+    <li class="tile">
+      <div class="tile__view">
+        ${x.kind === "photo" ? `<img src="${esc(x.preview || x.thumb_url || x.url)}" alt="Foto ${i + 1}">` : `<span>Video<br>${esc(videoHost(x.url))}</span>`}
+        ${x.id ? "" : "<em>Nuevo</em>"}
+      </div>
+      <div class="tile__actions">
+        <button class="icon" type="button" data-m="-1" data-i="${i}" aria-label="Mover antes (elemento ${i + 1})" ${i === 0 ? "disabled" : ""}>←</button>
+        <button class="icon" type="button" data-m="1" data-i="${i}" aria-label="Mover después (elemento ${i + 1})" ${i === items.length - 1 ? "disabled" : ""}>→</button>
+        <button class="icon icon--danger" type="button" data-m="x" data-i="${i}" aria-label="Quitar elemento ${i + 1}">✕</button>
+      </div>
+    </li>`).join("");
+}
+$("#mediaList").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-m]");
+  if (!btn) return;
+  const i = +btn.dataset.i;
+  if (btn.dataset.m === "x") {
+    const [gone] = items.splice(i, 1);
+    if (gone.id) removed.push(gone);
+    if (gone.preview) URL.revokeObjectURL(gone.preview);
+  } else {
+    const j = i + +btn.dataset.m;
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  renderMedia();
+});
+$("#addPhotos").addEventListener("click", () => $("#mediaFiles").click());
+$("#mediaFiles").addEventListener("change", (e) => {
+  const files = [...e.target.files];
+  e.target.value = "";
+  const tooBig = files.filter((f) => f.size > 25 * 1024 * 1024);
+  formError(tooBig.length ? `No se agregaron ${tooBig.length} foto(s) que pesan más de 25 MB.` : "");
+  files.filter((f) => !tooBig.includes(f)).forEach((file) => items.push({ kind: "photo", file, preview: URL.createObjectURL(file) }));
+  renderMedia();
+});
+function addVideo() {
+  const input = $("#mediaVideo");
+  const url = input.value.trim();
+  if (!url) return input.focus();
+  if (!videoHost(url)) return formError("Usa un enlace de YouTube, Vimeo o Instagram (reel o post) que empiece con https://");
+  formError("");
+  items.push({ kind: "video", url });
+  input.value = "";
+  renderMedia();
+}
+$("#addVideo").addEventListener("click", addVideo);
+$("#mediaVideo").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addVideo(); } });
+
+async function saveMedia(projectId, btn) {
+  if (removed.length) {
+    const { error } = await sb.from("project_media").delete().in("id", removed.map((x) => x.id));
+    if (error) throw error;
+    removeUploads(removed.flatMap((x) => [x.url, x.thumb_url]));
+    removed = [];
+  }
+  const total = items.filter((x) => x.file).length;
+  let n = 0;
+  const fresh = [];
+  const moves = [];
+  for (const [i, x] of items.entries()) {
+    const position = (i + 1) * 10;
+    if (x.file) {
+      btn.textContent = `Subiendo foto ${++n} de ${total}…`;
+      const up = await uploadImage(x.file, "gallery", "gallery-thumbs");
+      x.url = up.full; x.thumb_url = up.thumb;
+      delete x.file;
+    }
+    if (!x.id) fresh.push({ project_id: projectId, kind: x.kind, url: x.url, thumb_url: x.thumb_url || null, position });
+    else if (x.position !== position) moves.push(sb.from("project_media").update({ position }).eq("id", x.id));
+  }
+  if (!fresh.length && !moves.length) { media[projectId] = items.map((x) => ({ ...x })); return; }
+  const results = await Promise.all([...moves, ...(fresh.length ? [sb.from("project_media").insert(fresh)] : [])]);
+  const bad = results.find((r) => r.error);
+  const { data, error } = await sb.from("project_media").select("*").eq("project_id", projectId).order("position");
+  if (!error) { media[projectId] = data; items = data.map((x) => ({ ...x })); renderMedia(); }
+  if (bad || error) throw bad?.error || error;
 }
 $("#newProject").addEventListener("click", () => openSheet(null));
 $("#cancelProject").addEventListener("click", () => sheet.close());
@@ -185,21 +285,25 @@ async function toWebp(file, maxWidth, quality) {
   bmp.close();
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("No se pudo procesar la imagen"))), "image/webp", quality));
 }
-async function uploadCover(file) {
+async function uploadImage(file, fullDir, thumbDir) {
   const name = crypto.randomUUID();
   const [full, thumb] = await Promise.all([toWebp(file, 1600, 0.85), toWebp(file, 540, 0.72)]);
   const opts = { contentType: "image/webp", cacheControl: "31536000" };
-  const up1 = await sb.storage.from(BUCKET).upload(`covers/${name}.webp`, full, opts);
+  const up1 = await sb.storage.from(BUCKET).upload(`${fullDir}/${name}.webp`, full, opts);
   if (up1.error) throw up1.error;
-  const up2 = await sb.storage.from(BUCKET).upload(`thumbs/${name}.webp`, thumb, opts);
+  const up2 = await sb.storage.from(BUCKET).upload(`${thumbDir}/${name}.webp`, thumb, opts);
   if (up2.error) throw up2.error;
   const url = (path) => sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-  return { cover_url: url(`covers/${name}.webp`), thumb_url: url(`thumbs/${name}.webp`) };
+  return { full: url(`${fullDir}/${name}.webp`), thumb: url(`${thumbDir}/${name}.webp`) };
 }
-/* delete a project's uploaded files (seeded covers in /assets are left alone) */
-function removeUploads(p) {
+async function uploadCover(file) {
+  const up = await uploadImage(file, "covers", "thumbs");
+  return { cover_url: up.full, thumb_url: up.thumb };
+}
+/* delete uploaded files by their public URL (seeded covers in /assets and video links are left alone) */
+function removeUploads(urls) {
   const prefix = `${supabaseUrl}/storage/v1/object/public/${BUCKET}/`;
-  const paths = [p.cover_url, p.thumb_url].filter((u) => u?.startsWith(prefix)).map((u) => u.slice(prefix.length));
+  const paths = urls.filter((u) => u?.startsWith(prefix)).map((u) => u.slice(prefix.length));
   if (paths.length) sb.storage.from(BUCKET).remove(paths);
 }
 
@@ -220,7 +324,7 @@ $("#projectForm").addEventListener("submit", async (e) => {
   if (file && file.size > 25 * 1024 * 1024) return show("La imagen pesa más de 25 MB. Exporta una versión más liviana.");
 
   btn.disabled = true;
-  btn.textContent = file ? "Subiendo…" : "Guardando…";
+  btn.textContent = file ? "Subiendo portada…" : "Guardando…";
   try {
     const row = {
       title,
@@ -236,19 +340,24 @@ $("#projectForm").addEventListener("submit", async (e) => {
     if (editing) {
       const { data, error } = await sb.from("projects").update(row).eq("id", editing.id).select().single();
       if (error) throw error;
-      if (file) removeUploads(editing);
+      if (file) { removeUploads([editing.cover_url, editing.thumb_url]); $("#cover").value = ""; }
       projects[projects.findIndex((x) => x.id === editing.id)] = data;
+      editing = data;
     } else {
       row.position = (projects.at(-1)?.position || 0) + 10;
       const { data, error } = await sb.from("projects").insert(row).select().single();
       if (error) throw error;
       projects.push(data);
+      editing = data; // if the gallery step fails, saving again updates this project instead of creating a second one
+      $("#cover").value = "";
     }
+    await saveMedia(editing.id, btn);
     renderProjects();
     sheet.close();
     toast("Guardado. Ya está en el sitio.");
   } catch (error) {
     console.error(error);
+    renderProjects();
     show(`No se pudo guardar: ${error.message || error}`);
   } finally {
     btn.disabled = false;
