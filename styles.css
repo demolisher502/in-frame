@@ -61,10 +61,14 @@ em { font-style: normal; color: var(--accent); }
   position: fixed; inset: 0 0 auto 0; z-index: 50;
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px var(--pad);
-  transition: background 0.4s, border-color 0.4s, padding 0.4s;
+  transition: border-color 0.4s, padding 0.4s;
   border-bottom: 1px solid transparent;
 }
-.nav.is-stuck { background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); border-color: var(--line); padding-block: 12px; }
+.nav.is-stuck { border-color: var(--line); padding-block: 12px; }
+/* The blurred bar lives on a pseudo-element: a backdrop-filter on .nav itself would turn it into the
+   containing block for the fixed mobile menu and break that menu whenever the page is scrolled. */
+.nav::before { content: ""; position: absolute; inset: 0; z-index: -1; transition: background 0.4s; }
+.nav.is-stuck::before { background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); }
 .brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font: 800 1.625rem/1 var(--display); letter-spacing: 0.02em; }
 .brand__mark { width: 22px; height: 21.5px; flex: none; fill: var(--accent); }
 
@@ -205,6 +209,8 @@ em { font-style: normal; color: var(--accent); }
 @media (max-width: 1000px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 640px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
+  .chips { gap: 0 18px; }
+  .chip { font-size: 0.75rem; letter-spacing: 0.06em; }
   .card__info { padding: 40px 10px 10px; }
   .card:not(.card--big) .card__info strong { font-size: 1.0625rem; }
   .card:not(.card--big) .card__info small { display: none; }
