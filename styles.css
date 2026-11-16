@@ -211,18 +211,12 @@ em { font-style: normal; color: var(--accent); }
 }
 
 /* ---------- Services ---------- */
-.services { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
-.services li { padding: 32px 32px 8px 0; border-right: 1px solid var(--line); }
-.services li + li { padding-left: 32px; }
-.services li:last-child { border-right: 0; padding-right: 0; }
-.services__n { font: 600 0.75rem var(--sans); letter-spacing: 0.14em; color: var(--accent); }
-.services h3 { font: 800 clamp(1.625rem, 2.6vw, 2.25rem)/1.1 var(--display); margin: 48px 0 14px; }
-.services p { color: var(--muted); max-width: 36ch; }
-@media (max-width: 860px) {
-  .services { grid-template-columns: 1fr; }
-  .services li, .services li + li { padding: 28px 0; border-right: 0; border-bottom: 1px solid var(--line); }
-  .services h3 { margin-top: 18px; }
-}
+/* a credits roll: the role large on the left, what it covers on the right */
+.services { border-top: 1px solid var(--line); }
+.services li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px clamp(24px, 6vw, 96px); align-items: baseline; padding: clamp(22px, 3.2vw, 40px) 0; border-bottom: 1px solid var(--line); }
+.services h3 { font: 800 clamp(2.25rem, 5.2vw, 4.5rem)/0.92 var(--display); }
+.services p { color: var(--muted); font-size: 1.0625rem; max-width: 46ch; }
+@media (max-width: 760px) { .services li { grid-template-columns: 1fr; } }
 
 /* ---------- About ---------- */
 .about { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 96px); align-items: start; }
