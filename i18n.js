@@ -4,7 +4,7 @@
    keyed by each element's data-i18n (its inner HTML) or data-i18n-label (its aria-label).
    UI holds the short texts that main.js builds on the fly, in both languages.
    Project titles and details come from the database (title_en / meta_en, edited in /admin).
-   Language: ?lang=en or ?lang=es in the address, else the visitor's last choice, else the browser's language.
+   Language: ?lang=en or ?lang=es in the address, else the choice made in this tab, else Spanish.
 ------------------------------------------------------------------- */
 (function () {
   const EN = {
@@ -79,11 +79,10 @@
     try {
       const q = new URLSearchParams(location.search).get("lang");
       if (valid(q)) return q;
-      const saved = localStorage.getItem("lang");
+      const saved = sessionStorage.getItem("lang");
       if (valid(saved)) return saved;
     } catch (e) {}
-    const nav = (navigator.languages && navigator.languages[0]) || navigator.language || "es";
-    return nav.toLowerCase().startsWith("en") ? "en" : "es";
+    return "es";
   }
 
   /* the Spanish originals, read once from the page */
@@ -125,7 +124,7 @@
     onChange(fn) { listeners.push(fn); },
     set(next) {
       if (!valid(next) || next === lang) return;
-      try { localStorage.setItem("lang", next); } catch (e) {}
+      try { sessionStorage.setItem("lang", next); } catch (e) {}
       apply(next);
     },
   };
