@@ -6,10 +6,18 @@
   <title>In Frame — Productora audiovisual · Juan Soriano</title>
   <meta name="description" content="In Frame es la productora audiovisual de Juan Soriano: dirección, filmación, postproducción y fotografía en República Dominicana.">
   <meta name="theme-color" content="#0e0d0b">
+  <meta name="color-scheme" content="dark">
+  <!-- Update these three URLs if the site moves to its own domain -->
+  <link rel="canonical" href="https://in-frame-redesign.vercel.app/">
+  <meta property="og:url" content="https://in-frame-redesign.vercel.app/">
+  <meta property="og:locale" content="es_DO">
   <meta property="og:type" content="website">
   <meta property="og:title" content="In Frame — Productora audiovisual">
   <meta property="og:description" content="Dirección, filmación, postproducción y fotografía. Historias visuales que conectan.">
-  <meta property="og:image" content="assets/work/DN6wpaIkVMU.jpg">
+  <meta property="og:image" content="https://in-frame-redesign.vercel.app/assets/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://in-frame-redesign.vercel.app/assets/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,7 +47,7 @@
   <a class="skip" href="#trabajo">Saltar al contenido</a>
 
   <header class="nav" id="nav">
-    <a href="#top" class="brand" aria-label="In Frame, inicio">
+    <a href="#top" class="brand" id="brand" aria-label="In Frame, inicio">
       <svg class="brand__mark" viewBox="0 0 358 349" aria-hidden="true"><use href="#if-logo"/></svg>In Frame
     </a>
     <nav class="nav__links" id="menu" aria-label="Principal">
@@ -64,8 +72,13 @@
         <i></i><i></i><i></i><i></i>
         <span class="finder__rec"><b></b>REC</span>
         <span class="finder__tc" id="timecode">00:00:00:00</span>
-        <span class="finder__fmt">9:16 · 24 FPS</span>
       </div>
+
+      <button class="motion" id="motion" type="button" aria-pressed="false">
+        <svg class="motion__pause" viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0h3.5v12H0zM6.5 0H10v12H6.5z"/></svg>
+        <svg class="motion__play" viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg>
+        <span id="motionLabel">Pausar movimiento</span>
+      </button>
 
       <div class="wrap hero__body">
         <p class="eyebrow">Productora audiovisual — Santo Domingo, RD</p>
@@ -81,7 +94,7 @@
     <!-- CLIENTES -->
     <section class="clients" aria-labelledby="clientsTitle">
       <h2 class="label wrap" id="clientsTitle">Marcas y equipos con los que hemos trabajado</h2>
-      <div class="marquee"><ul class="marquee__track" id="clients"></ul></div>
+      <div class="marquee"><ul class="marquee__track" id="clients"><li>Wendy’s</li><li>Pizza Hut</li><li>Häagen-Dazs</li><li>Banco LAFISE</li><li>Viamar</li><li>Manzanas Washington</li><li>Bodas A La Moda</li><li>By Oriana Lucas</li><li>Hoenn</li></ul></div>
     </section>
 
     <!-- TRABAJO -->
@@ -92,7 +105,108 @@
           <h2 class="title">Proyectos seleccionados</h2>
         </header>
         <div class="chips reveal" id="chips" role="group" aria-label="Filtrar por categoría"></div>
-        <div class="grid" id="grid"></div>
+        <div class="grid" id="grid">
+          <a class="card reveal card--big" href="https://www.instagram.com/reel/DZqhDx_pwn-/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DZqhDx_pwn-.jpg" data-title="Wendy’s — Lanzamiento Tenders" data-meta="Cobertura de evento · con Hoenn" data-year="2026">
+            <img src="assets/work/thumb/DZqhDx_pwn-.webp" alt="Wendy’s — Lanzamiento Tenders — Cobertura de evento · con Hoenn" loading="lazy" decoding="async" width="540" height="960">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>Wendy’s — Lanzamiento Tenders</strong><small>Cobertura de evento · con Hoenn · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DPrdmBtgVTj/" target="_blank" rel="noopener" data-type="foto" data-full="assets/work/DPrdmBtgVTj.webp" data-title="Pizza Hut" data-meta="Sesión de fotos · con Hoenn" data-year="2025">
+            <img src="assets/work/thumb/DPrdmBtgVTj.webp" srcset="assets/work/thumb/DPrdmBtgVTj.webp 540w, assets/work/DPrdmBtgVTj.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Pizza Hut — Sesión de fotos · con Hoenn" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Foto</span>
+            <span class="card__info"><strong>Pizza Hut</strong><small>Sesión de fotos · con Hoenn · 2025</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/reel/DN6wpaIkVMU/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DN6wpaIkVMU.jpg" data-title="By Oriana Lucas" data-meta="Fashion film · Colección nupcial" data-year="2025">
+            <img src="assets/work/thumb/DN6wpaIkVMU.webp" srcset="assets/work/thumb/DN6wpaIkVMU.webp 540w, assets/work/DN6wpaIkVMU.jpg 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="By Oriana Lucas — Fashion film · Colección nupcial" loading="lazy" decoding="async" width="1080" height="1920">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>By Oriana Lucas</strong><small>Fashion film · Colección nupcial · 2025</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/reel/DM-ivGzpY6K/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DM-ivGzpY6K.jpg" data-title="Häagen-Dazs" data-meta="Cobertura Día de los Padres · con Hoenn" data-year="2025">
+            <img src="assets/work/thumb/DM-ivGzpY6K.webp" alt="Häagen-Dazs — Cobertura Día de los Padres · con Hoenn" loading="lazy" decoding="async" width="540" height="960">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>Häagen-Dazs</strong><small>Cobertura Día de los Padres · con Hoenn · 2025</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/reel/DNTwqHEvI5Z/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DNTwqHEvI5Z.jpg" data-title="Banco LAFISE × Viamar" data-meta="Feria de Vehículos · con Hoenn" data-year="2025">
+            <img src="assets/work/thumb/DNTwqHEvI5Z.webp" srcset="assets/work/thumb/DNTwqHEvI5Z.webp 540w, assets/work/DNTwqHEvI5Z.jpg 640w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Banco LAFISE × Viamar — Feria de Vehículos · con Hoenn" loading="lazy" decoding="async" width="640" height="1136">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>Banco LAFISE × Viamar</strong><small>Feria de Vehículos · con Hoenn · 2025</small></span>
+          </a>
+          <a class="card reveal card--big" href="https://www.instagram.com/reel/C8iAuPMP0PC/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/C8iAuPMP0PC.jpg" data-title="Bodas A La Moda — Portada no. 13" data-meta="Video y fotos · Oriana Lucas · Cayo Levantado" data-year="2024">
+            <img src="assets/work/thumb/C8iAuPMP0PC.webp" alt="Bodas A La Moda — Portada no. 13 — Video y fotos · Oriana Lucas · Cayo Levantado" loading="lazy" decoding="async" width="540" height="960">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>Bodas A La Moda — Portada no. 13</strong><small>Video y fotos · Oriana Lucas · Cayo Levantado · 2024</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/reel/DY-rGuBJqco/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DY-rGuBJqco.jpg" data-title="Manzanas Washington × Julio Rodríguez" data-meta="Documental · Loma de Cabrera · con Hoenn" data-year="2026">
+            <img src="assets/work/thumb/DY-rGuBJqco.webp" alt="Manzanas Washington × Julio Rodríguez — Documental · Loma de Cabrera · con Hoenn" loading="lazy" decoding="async" width="540" height="960">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>Manzanas Washington × Julio Rodríguez</strong><small>Documental · Loma de Cabrera · con Hoenn · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/reel/DNZZu9HMVtt/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DNZZu9HMVtt.jpg" data-title="Tradiciones Reinventadas" data-meta="Intro de serie · Chef Giancarlo Bonarelli" data-year="2025">
+            <img src="assets/work/thumb/DNZZu9HMVtt.webp" alt="Tradiciones Reinventadas — Intro de serie · Chef Giancarlo Bonarelli" loading="lazy" decoding="async" width="540" height="960">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>Tradiciones Reinventadas</strong><small>Intro de serie · Chef Giancarlo Bonarelli · 2025</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DPUr9v3Cprw/" target="_blank" rel="noopener" data-type="foto" data-full="assets/work/DPUr9v3Cprw.jpg" data-title="¡Qué Chévere es Saber!" data-meta="Sesión de fotos" data-year="2025">
+            <img src="assets/work/thumb/DPUr9v3Cprw.webp" srcset="assets/work/thumb/DPUr9v3Cprw.webp 540w, assets/work/DPUr9v3Cprw.jpg 720w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="¡Qué Chévere es Saber! — Sesión de fotos" loading="lazy" decoding="async" width="720" height="1280">
+            <span class="card__badge">Foto</span>
+            <span class="card__info"><strong>¡Qué Chévere es Saber!</strong><small>Sesión de fotos · 2025</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DZ749TVFhTV/" target="_blank" rel="noopener" data-type="foto" data-full="assets/work/DZ749TVFhTV.webp" data-title="Fotografía gastronómica" data-meta="In Frame" data-year="2026">
+            <img src="assets/work/thumb/DZ749TVFhTV.webp" srcset="assets/work/thumb/DZ749TVFhTV.webp 540w, assets/work/DZ749TVFhTV.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Fotografía gastronómica — In Frame" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Foto</span>
+            <span class="card__info"><strong>Fotografía gastronómica</strong><small>In Frame · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/reel/DSS7t2liWs1/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DSS7t2liWs1.jpg" data-title="Food film" data-meta="In Frame" data-year="2025">
+            <img src="assets/work/thumb/DSS7t2liWs1.webp" alt="Food film — In Frame" loading="lazy" decoding="async" width="540" height="960">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>Food film</strong><small>In Frame · 2025</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/reel/DE5sq4mPWbB/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DE5sq4mPWbB.jpg" data-title="Spot de producto" data-meta="Con Miguel R. Corniel y Hoenn" data-year="2025">
+            <img src="assets/work/thumb/DE5sq4mPWbB.webp" alt="Spot de producto — Con Miguel R. Corniel y Hoenn" loading="lazy" decoding="async" width="540" height="960">
+            <span class="card__badge"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Video</span>
+            <span class="card__info"><strong>Spot de producto</strong><small>Con Miguel R. Corniel y Hoenn · 2025</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DcPAuYWiaV_/" target="_blank" rel="noopener" data-type="retrato" data-full="assets/work/DcPAuYWiaV_.webp" data-title="Retrato editorial" data-meta="Modelo @kakeiyang" data-year="2026">
+            <img src="assets/work/thumb/DcPAuYWiaV_.webp" srcset="assets/work/thumb/DcPAuYWiaV_.webp 540w, assets/work/DcPAuYWiaV_.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Retrato editorial — Modelo @kakeiyang" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Retrato</span>
+            <span class="card__info"><strong>Retrato editorial</strong><small>Modelo @kakeiyang · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DaMSg-DjEdr/" target="_blank" rel="noopener" data-type="retrato" data-full="assets/work/DaMSg-DjEdr.webp" data-title="Retrato editorial" data-meta="Modelo @evivilla24" data-year="2026">
+            <img src="assets/work/thumb/DaMSg-DjEdr.webp" srcset="assets/work/thumb/DaMSg-DjEdr.webp 540w, assets/work/DaMSg-DjEdr.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Retrato editorial — Modelo @evivilla24" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Retrato</span>
+            <span class="card__info"><strong>Retrato editorial</strong><small>Modelo @evivilla24 · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DUb9KJmCTru/" target="_blank" rel="noopener" data-type="retrato" data-full="assets/work/DUb9KJmCTru.webp" data-title="Retrato en estudio" data-meta="Modelo @nicolecueli" data-year="2026">
+            <img src="assets/work/thumb/DUb9KJmCTru.webp" srcset="assets/work/thumb/DUb9KJmCTru.webp 540w, assets/work/DUb9KJmCTru.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Retrato en estudio — Modelo @nicolecueli" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Retrato</span>
+            <span class="card__info"><strong>Retrato en estudio</strong><small>Modelo @nicolecueli · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DVMCMUpkVqD/" target="_blank" rel="noopener" data-type="retrato" data-full="assets/work/DVMCMUpkVqD.webp" data-title="Retrato en estudio" data-meta="Modelo @nataliasanchezlegal" data-year="2026">
+            <img src="assets/work/thumb/DVMCMUpkVqD.webp" srcset="assets/work/thumb/DVMCMUpkVqD.webp 540w, assets/work/DVMCMUpkVqD.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Retrato en estudio — Modelo @nataliasanchezlegal" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Retrato</span>
+            <span class="card__info"><strong>Retrato en estudio</strong><small>Modelo @nataliasanchezlegal · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DUtVNPqCXqB/" target="_blank" rel="noopener" data-type="retrato" data-full="assets/work/DUtVNPqCXqB.webp" data-title="Retrato editorial" data-meta="Modelo @ricicorniel" data-year="2026">
+            <img src="assets/work/thumb/DUtVNPqCXqB.webp" srcset="assets/work/thumb/DUtVNPqCXqB.webp 540w, assets/work/DUtVNPqCXqB.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Retrato editorial — Modelo @ricicorniel" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Retrato</span>
+            <span class="card__info"><strong>Retrato editorial</strong><small>Modelo @ricicorniel · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DUoHASsiTr6/" target="_blank" rel="noopener" data-type="retrato" data-full="assets/work/DUoHASsiTr6.webp" data-title="Retrato editorial" data-meta="Modelo @jenvargas_" data-year="2026">
+            <img src="assets/work/thumb/DUoHASsiTr6.webp" srcset="assets/work/thumb/DUoHASsiTr6.webp 540w, assets/work/DUoHASsiTr6.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Retrato editorial — Modelo @jenvargas_" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Retrato</span>
+            <span class="card__info"><strong>Retrato editorial</strong><small>Modelo @jenvargas_ · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DUgnbtbCfd5/" target="_blank" rel="noopener" data-type="retrato" data-full="assets/work/DUgnbtbCfd5.webp" data-title="Retrato en estudio" data-meta="Modelo @rdriguez_arias" data-year="2026">
+            <img src="assets/work/thumb/DUgnbtbCfd5.webp" srcset="assets/work/thumb/DUgnbtbCfd5.webp 540w, assets/work/DUgnbtbCfd5.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Retrato en estudio — Modelo @rdriguez_arias" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Retrato</span>
+            <span class="card__info"><strong>Retrato en estudio</strong><small>Modelo @rdriguez_arias · 2026</small></span>
+          </a>
+          <a class="card reveal" href="https://www.instagram.com/p/DT_W-IUkV3Z/" target="_blank" rel="noopener" data-type="retrato" data-full="assets/work/DT_W-IUkV3Z.webp" data-title="Retrato en estudio" data-meta="Modelo @bessyrodz" data-year="2026">
+            <img src="assets/work/thumb/DT_W-IUkV3Z.webp" srcset="assets/work/thumb/DT_W-IUkV3Z.webp 540w, assets/work/DT_W-IUkV3Z.webp 1080w" sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" alt="Retrato en estudio — Modelo @bessyrodz" loading="lazy" decoding="async" width="1080" height="1440">
+            <span class="card__badge">Retrato</span>
+            <span class="card__info"><strong>Retrato en estudio</strong><small>Modelo @bessyrodz · 2026</small></span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -183,7 +297,7 @@
     <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" type="button" aria-label="Anterior">←</button>
     <figure class="lightbox__fig">
       <div class="lightbox__media" id="lbMedia"></div>
-      <figcaption>
+      <figcaption aria-live="polite">
         <h3 id="lbTitle"></h3>
         <p id="lbMeta"></p>
         <a id="lbLink" target="_blank" rel="noopener">Ver en Instagram ↗</a>

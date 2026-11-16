@@ -6,12 +6,13 @@ Static site — no build step. Open `index.html` or run `npx serve .`.
 
 ## Editing content
 
-Everything lives at the top of `main.js`:
+- **Projects** — each one is an `<a class="card">` inside `#grid` in `index.html`. The `href` is the Instagram post, `data-full` is the full-size image, and the `<img>` points at the small version in `assets/work/thumb/`. Videos open in the lightbox through Instagram's embed player; photos open full size. Add `card--big` to feature one.
+- **Client names** — the `<li>` items in `#clients` in `index.html`.
+- **Hero wall** — the `WALL` list at the top of `main.js` (Instagram shortcodes, three columns).
+- **WhatsApp** — `WHATSAPP` (number with country code) and `WA_MESSAGE` at the top of `main.js`.
+- **Domain** — if the site moves, update the canonical, `og:url` and `og:image` URLs in the `<head>` of `index.html`.
 
-- `PROJECTS` — one entry per piece of work. `id` is the Instagram shortcode of the post; the cover image is `assets/work/<id>.<ext>`. Videos open in the lightbox through Instagram's embed player; photos open full size.
-- `CLIENTS` — names in the scrolling strip.
-- `WALL` — which covers appear in the hero.
-- `WHATSAPP` / `WA_MESSAGE` — number (with country code) and the prefilled message.
+To add an image: put the full version in `assets/work/` and a ~540px-wide WebP of it in `assets/work/thumb/` with the same name.
 
 ## Where the content came from
 
