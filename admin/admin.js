@@ -164,6 +164,8 @@ function openSheet(p) {
   $("#sheetTitle").textContent = p ? "Editar proyecto" : "Nuevo proyecto";
   $("#fTitle").value = p?.title || "";
   $("#fMeta").value = p?.meta || "";
+  $("#fTitleEn").value = p?.title_en || "";
+  $("#fMetaEn").value = p?.meta_en || "";
   $("#fType").value = p?.type || "video";
   $("#fYear").value = p?.year || new Date().getFullYear();
   $("#fLink").value = p?.link || "";
@@ -329,6 +331,8 @@ $("#projectForm").addEventListener("submit", async (e) => {
     const row = {
       title,
       meta: $("#fMeta").value.trim(),
+      title_en: $("#fTitleEn").value.trim() || null,
+      meta_en: $("#fMetaEn").value.trim() || null,
       type: $("#fType").value,
       year: Number.isFinite(year) ? year : null,
       link: link || null,

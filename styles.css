@@ -84,6 +84,14 @@ em { font-style: normal; color: var(--accent); }
 .nav__links a:not(.btn)::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.35s var(--ease); }
 .nav__links a:not(.btn):hover, .nav__links a.is-active { color: var(--text); }
 .nav__links a:not(.btn):hover::after, .nav__links a.is-active::after { transform: scaleX(1); }
+.nav__links { margin-left: auto; }
+.nav__end { display: flex; align-items: center; gap: 4px; margin-left: 26px; position: relative; z-index: 60; }
+/* language switch: ES | EN, the current one in the accent colour */
+.lang { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; font: 600 0.75rem/1 var(--sans); letter-spacing: 0.12em; color: var(--muted); }
+.lang span { padding: 6px 7px; transition: color 0.25s; }
+.lang span + span { border-left: 1px solid var(--line); }
+.lang:hover span { color: var(--text); }
+.lang[data-lang="es"] span[lang="es"], .lang[data-lang="en"] span[lang="en"] { color: var(--accent); }
 .nav__toggle { display: none; width: 44px; height: 44px; position: relative; z-index: 60; }
 .nav__toggle span { position: absolute; left: 11px; right: 11px; height: 1.5px; background: var(--text); transition: transform 0.3s var(--ease), top 0.3s var(--ease); }
 .nav__toggle span:first-child { top: 18px; }

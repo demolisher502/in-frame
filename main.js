@@ -10,15 +10,17 @@ const WALL = [
   "DM-ivGzpY6K", "C8iAuPMP0PC", "DY-rGuBJqco", "DUgnbtbCfd5", "DaMSg-DjEdr", "DZ749TVFhTV",
 ].map((id) => `assets/work/thumb/${id}.webp`);
 
-const WHATSAPP = "18295602997"; // country code included
-const WA_MESSAGE = "Hola Juan, vi tu portafolio de In Frame y me gustaría hablar sobre un proyecto.";
+const WHATSAPP = "18295602997"; // country code included; the prefilled message is "wa" in i18n.js
 
 /* ------------------------------------------------------------------ */
 const root = document.documentElement;
 root.classList.add("js");
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const LABEL = { video: "Video", foto: "Foto", retrato: "Retrato" };
+/* Language (i18n.js): t() gives the short UI texts; loc() gives a project's title and details in the current language */
+const t = (key, ...args) => (window.I18N ? I18N.t(key, ...args) : key);
+const label = (type) => (["video", "foto", "retrato"].includes(type) ? t(type) : "");
+const loc = (p) => (window.I18N?.lang === "en" ? { title: p.titleEn || p.title, meta: p.metaEn || p.meta } : { title: p.title, meta: p.meta });
 const PLAY = '<svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>';
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -43,7 +45,8 @@ window.addEventListener("keydown", endIntro, { once: true });
 setTimeout(endIntro, 3500);
 
 /* WhatsApp links with a prefilled message */
-$$("[data-wa]").forEach((a) => (a.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(WA_MESSAGE)}`));
+const setWhatsApp = () => $$("[data-wa]").forEach((a) => (a.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(t("wa"))}`));
+setWhatsApp();
 $("#year").textContent = new Date().getFullYear();
 
 /* Reveal once (never hides again) */
@@ -94,11 +97,12 @@ let visible = [];
 
 function cardHTML(p) {
   const thumb = safeImg(p.thumb), full = safeImg(p.full), link = safeLink(p.link);
-  const alt = esc(`${p.title} — ${p.meta}`);
+  const { title, meta } = loc(p);
+  const alt = esc(`${title} — ${meta}`);
   return `<a class="card in${p.featured ? " card--big" : ""}" ${link ? `href="${esc(link)}" target="_blank" rel="noopener"` : 'href="#trabajo"'} data-type="${esc(p.type)}">
     <img src="${esc(thumb)}" srcset="${esc(thumb)} 540w, ${esc(full)} 1200w" sizes="${p.featured ? "(max-width: 640px) 100vw, 50vw" : "(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw"}" alt="${alt}" loading="lazy" decoding="async">
-    <span class="card__badge">${p.type === "video" ? PLAY : ""}${LABEL[p.type] || ""}${p.media?.length ? ` +${p.media.length}` : ""}</span>
-    <span class="card__info"><strong>${esc(p.title)}</strong><small>${esc([p.meta, p.year].filter(Boolean).join(" · "))}</small></span>
+    <span class="card__badge">${p.type === "video" ? PLAY : ""}${label(p.type)}${p.media?.length ? ` +${p.media.length}` : ""}</span>
+    <span class="card__info"><strong>${esc(title)}</strong><small>${esc([meta, p.year].filter(Boolean).join(" · "))}</small></span>
   </a>`;
 }
 
@@ -111,7 +115,7 @@ function setProjects(list, rerender) {
   const types = ["todos", ...["video", "foto", "retrato"].filter((t) => PROJECTS.some((p) => p.type === t))];
   chips.innerHTML = types.map((t, i) => {
     const n = t === "todos" ? PROJECTS.length : PROJECTS.filter((p) => p.type === t).length;
-    return `<button class="chip" type="button" data-filter="${t}" aria-pressed="${i === 0}">${t === "todos" ? "Todos" : LABEL[t]}<sup>${n}</sup></button>`;
+    return `<button class="chip" type="button" data-filter="${t}" aria-pressed="${i === 0}">${t === "todos" ? I18N.t("all") : label(t)}<sup>${n}</sup></button>`;
   }).join("");
 }
 
@@ -143,21 +147,21 @@ chips.addEventListener("click", (e) => {
 });
 
 /* ---------- Live content from the database ---------- */
-const sig = (list) => JSON.stringify(list.map((p) => [p.title, p.meta, String(p.year ?? ""), p.type, p.thumb, p.full, p.link, !!p.featured, p.media?.length || 0]));
+const sig = (list) => JSON.stringify(list.map((p) => [p.title, p.meta, p.titleEn || "", p.metaEn || "", String(p.year ?? ""), p.type, p.thumb, p.full, p.link, !!p.featured, p.media?.length || 0]));
 async function loadLive() {
   const cfg = window.IF_CONFIG;
   if (!cfg) return;
   const get = (path) => fetch(`${cfg.supabaseUrl}/rest/v1/${path}`, { headers: { apikey: cfg.supabaseKey } }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
   try {
     const [rows, names, extra] = await Promise.all([
-      get("projects?select=id,title,meta,year,type,link,cover_url,thumb_url,featured,in_hero&published=is.true&order=position.asc"),
+      get("projects?select=id,title,meta,title_en,meta_en,year,type,link,cover_url,thumb_url,featured,in_hero&published=is.true&order=position.asc"),
       get("clients?select=name,logo_url&order=position.asc"),
       get("project_media?select=project_id,kind,url&order=position.asc").catch(() => []), // galleries are optional
     ]);
     if (rows.length) {
       const gallery = {};
       extra.forEach((m) => (gallery[m.project_id] ||= []).push({ kind: m.kind, url: m.url }));
-      const live = rows.map((r) => ({ media: gallery[r.id] || [], type: r.type, title: r.title, meta: r.meta, year: r.year, full: r.cover_url, thumb: r.thumb_url, link: r.link || "", featured: r.featured, inHero: r.in_hero }));
+      const live = rows.map((r) => ({ media: gallery[r.id] || [], type: r.type, title: r.title, meta: r.meta, titleEn: r.title_en || "", metaEn: r.meta_en || "", year: r.year, full: r.cover_url, thumb: r.thumb_url, link: r.link || "", featured: r.featured, inHero: r.in_hero }));
       if (sig(live) !== sig(fromDom)) setProjects(live, true);
       const hero = live.filter((p) => p.inHero);
       renderWall((hero.length >= 3 ? hero : live).map((p) => p.thumb));
@@ -189,19 +193,20 @@ function show(i, s = 0) {
   slide = s < 0 ? slides.length - 1 : Math.min(s, slides.length - 1);
   const item = slides[slide];
   const embed = item.kind === "video" ? embedOf(item.url) : null;
-  const n = slides.length > 1 ? ` (${slide + 1} de ${slides.length})` : "";
+  const { title, meta } = loc(p);
+  const n = slides.length > 1 ? ` (${t("count", slide + 1, slides.length)})` : "";
   lbMedia.innerHTML = embed
-    ? `<iframe${embed.wide ? ' class="is-wide"' : ""} src="${esc(embed.src)}" title="${esc(p.title + n)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen${item.poster ? ` style="background-image:url('${esc(safeImg(item.poster))}')"` : ""}></iframe>`
-    : `<img src="${esc(safeImg(item.url))}" alt="${esc(`${p.title} — ${p.meta}${n}`)}">`;
-  $("#lbTitle").textContent = p.title;
-  $("#lbMeta").textContent = [LABEL[p.type], p.meta, p.year].filter(Boolean).join(" · ");
+    ? `<iframe${embed.wide ? ' class="is-wide"' : ""} src="${esc(embed.src)}" title="${esc(title + n)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen${item.poster ? ` style="background-image:url('${esc(safeImg(item.poster))}')"` : ""}></iframe>`
+    : `<img src="${esc(safeImg(item.url))}" alt="${esc(`${title} — ${meta}${n}`)}">`;
+  $("#lbTitle").textContent = title;
+  $("#lbMeta").textContent = [label(p.type), meta, p.year].filter(Boolean).join(" · ");
   const count = $("#lbCount");
   count.hidden = slides.length < 2;
   count.textContent = `${slide + 1} / ${slides.length}`;
   const link = safeLink(embed ? item.url : p.link);
   const a = $("#lbLink");
   a.hidden = !link;
-  if (link) { a.href = link; a.textContent = `Ver ${(embedOf(link) || {}).host ? "en " + embedOf(link).host : "proyecto"} ↗`; }
+  if (link) { a.href = link; const host = (embedOf(link) || {}).host; a.textContent = host ? t("viewOn", host) : t("viewProject"); }
 }
 function step(d) {
   const next = slide + d;
@@ -240,7 +245,7 @@ function setMenu(open, returnFocus = false) {
   if (open === menu.classList.contains("is-open")) return;
   menu.classList.toggle("is-open", open);
   toggle.setAttribute("aria-expanded", open);
-  toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+  toggle.setAttribute("aria-label", t(open ? "closeMenu" : "openMenu"));
   document.body.style.overflow = open ? "hidden" : "";
   behindMenu.forEach((el) => (el.inert = open));
   if (open) $("a", menu).focus();
@@ -286,7 +291,7 @@ function setPaused(value) {
   paused = value;
   root.classList.toggle("motion-paused", paused);
   motionBtn.setAttribute("aria-pressed", paused);
-  $("#motionLabel").textContent = paused ? "Reanudar movimiento" : "Pausar movimiento";
+  $("#motionLabel").textContent = t(paused ? "resume" : "pause");
   try { localStorage.setItem("motionPaused", paused ? "1" : ""); } catch (e) {}
   syncTimecode();
 }
@@ -302,3 +307,18 @@ const offscreen = new IntersectionObserver((entries) => {
 [hero, $(".clients")].forEach((el) => offscreen.observe(el));
 document.addEventListener("visibilitychange", syncTimecode);
 syncTimecode();
+
+/* ---------- Language switch: redraw what this file wrote (i18n.js swaps the fixed texts) ---------- */
+function relang() {
+  const active = $(".chip[aria-pressed='true']", chips)?.dataset.filter || "todos";
+  setProjects(PROJECTS, true);
+  if (active !== "todos") $(`.chip[data-filter="${active}"]`, chips)?.click();
+  setWhatsApp();
+  $("#motionLabel").textContent = t(paused ? "resume" : "pause");
+  toggle.setAttribute("aria-label", t(menu.classList.contains("is-open") ? "closeMenu" : "openMenu"));
+  if (lb.open) show(current, slide);
+}
+if (window.I18N) {
+  I18N.onChange(relang);
+  if (I18N.lang !== "es") relang(); // the cards written in index.html are in Spanish
+}

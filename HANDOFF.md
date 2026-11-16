@@ -26,6 +26,7 @@ A redesign of Juan's portfolio, built as a proposal on top of the original at [i
 | `styles.css` | All public styling. Design tokens are at the top (`--bg`, `--text`, `--accent`, `--display`, `--sans`) |
 | `main.js` | Loads live content from Supabase and replaces the fallback; filters, lightbox/gallery, menu, motion pause |
 | `config.js` | Supabase URL and publishable key |
+| `i18n.js` | Spanish / English: English versions of the fixed texts, the short texts `main.js` builds, and the language switch |
 | `admin/` | Admin page: sign-in, project editor with cover upload and gallery, client list. Uses supabase-js from a CDN |
 | `assets/work/` | The 20 original covers (from Instagram) and their 540px thumbnails |
 
@@ -54,7 +55,8 @@ Granting access (also in the README):
 - **The site URL is hard-coded** in the `<head>` of `index.html` (canonical, `og:url`, `og:image`). Update all three if the domain changes.
 - **Videos are never uploaded.** They are links (Instagram, YouTube, Vimeo) played through each platform's embed. `embedOf()` in `main.js` and `videoHost()` in `admin/admin.js` decide which links are accepted; keep the two in sync.
 - **Images are resized in the browser** before upload (1600px and 540px WebP), so storage use stays small.
-- **Texts are not in the database.** Hero, services, bio, quote and contact details are edited in `index.html`; the WhatsApp number and message are at the top of `main.js`.
+- **Texts are not in the database.** Hero, services, bio, quote and contact details are edited in `index.html` (Spanish) and `i18n.js` (English, same `data-i18n` key); the WhatsApp number is at the top of `main.js` and its prefilled message, in both languages, in `i18n.js`.
+- **Two languages.** Spanish is the default; English is chosen with ES | EN, remembered per visitor, or taken from the browser language. Project titles and details use `title_en` / `meta_en` when filled in and fall back to Spanish. Search engines see the Spanish page.
 - **No password reset or change screen exists** in the admin page. Passwords are set in the Supabase dashboard.
 - **Media came from Instagram**, at Instagram resolution, from @inframe.rd and @juansorianoph. Replacing covers with Juan's original exports would improve quality.
 

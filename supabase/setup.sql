@@ -28,7 +28,10 @@ create table public.projects (
   in_hero boolean not null default false,
   published boolean not null default true,
   position int not null default 0,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- optional English texts; the site falls back to title/meta when they are empty
+  title_en text check (title_en is null or char_length(title_en) between 1 and 120),
+  meta_en text check (meta_en is null or char_length(meta_en) <= 200)
 );
 create index projects_position_idx on public.projects (position);
 alter table public.projects enable row level security;
@@ -149,3 +152,26 @@ insert into public.clients (name, position) values
   ('Bodas A La Moda', 70),
   ('By Oriana Lucas', 80),
   ('Hoenn', 90);
+
+-- English texts for the starting projects (names that are brands or titles stay as they are)
+update public.projects p set title_en = v.en from (values
+  ('Wendy’s — Lanzamiento Tenders', 'Wendy’s — Tenders Launch'),
+  ('Bodas A La Moda — Portada no. 13', 'Bodas A La Moda — Cover no. 13'),
+  ('Fotografía gastronómica', 'Food photography'),
+  ('Spot de producto', 'Product spot'),
+  ('Retrato editorial', 'Editorial portrait'),
+  ('Retrato en estudio', 'Studio portrait')
+) as v(es, en) where p.title = v.es;
+update public.projects p set meta_en = v.en from (values
+  ('Cobertura de evento · con Hoenn', 'Event coverage · with Hoenn'),
+  ('Sesión de fotos · con Hoenn', 'Photo shoot · with Hoenn'),
+  ('Fashion film · Colección nupcial', 'Fashion film · Bridal collection'),
+  ('Cobertura Día de los Padres · con Hoenn', 'Father’s Day coverage · with Hoenn'),
+  ('Feria de Vehículos · con Hoenn', 'Car fair · with Hoenn'),
+  ('Video y fotos · Oriana Lucas · Cayo Levantado', 'Video and photos · Oriana Lucas · Cayo Levantado'),
+  ('Documental · Loma de Cabrera · con Hoenn', 'Documentary · Loma de Cabrera · with Hoenn'),
+  ('Intro de serie · Chef Giancarlo Bonarelli', 'Series intro · Chef Giancarlo Bonarelli'),
+  ('Sesión de fotos', 'Photo shoot'),
+  ('Con Miguel R. Corniel y Hoenn', 'With Miguel R. Corniel and Hoenn')
+) as v(es, en) where p.meta = v.es;
+update public.projects set meta_en = 'Model ' || substring(meta from 8) where meta like 'Modelo @%';

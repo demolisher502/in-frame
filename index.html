@@ -44,22 +44,26 @@
   </div>
   <noscript><style>.intro{display:none}</style></noscript>
 
-  <a class="skip" href="#trabajo">Saltar al contenido</a>
+  <a class="skip" href="#trabajo" data-i18n="skip">Saltar al contenido</a>
 
   <header class="nav" id="nav">
-    <a href="#top" class="brand" id="brand" aria-label="In Frame, inicio">
+    <a href="#top" class="brand" id="brand" aria-label="In Frame, inicio" data-i18n-label="brand.label">
       <svg class="brand__mark" viewBox="0 0 358 349" aria-hidden="true"><use href="#if-logo"/></svg>In Frame
     </a>
-    <nav class="nav__links" id="menu" aria-label="Principal">
-      <a href="#trabajo">Trabajo</a>
-      <a href="#servicios">Servicios</a>
-      <a href="#sobre-mi">Sobre mí</a>
-      <a href="#contacto">Contacto</a>
-      <a class="btn btn--sm" data-wa href="https://wa.me/18295602997" target="_blank" rel="noopener">Hablemos</a>
+    <nav class="nav__links" id="menu" aria-label="Principal" data-i18n-label="nav.label">
+      <a href="#trabajo" data-i18n="nav.work">Trabajo</a>
+      <a href="#servicios" data-i18n="nav.services">Servicios</a>
+      <a href="#sobre-mi" data-i18n="nav.about">Sobre mí</a>
+      <a href="#contacto" data-i18n="nav.contact">Contacto</a>
+      <a class="btn btn--sm" data-wa href="https://wa.me/18295602997" target="_blank" rel="noopener" data-i18n="nav.talk">Hablemos</a>
     </nav>
-    <button class="nav__toggle" id="toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
-      <span></span><span></span>
-    </button>
+    <div class="nav__end">
+      <!-- language switch: shows both, the current one highlighted -->
+      <button class="lang" id="lang" type="button" data-lang="es" aria-label="Cambiar el sitio a inglés"><span lang="es">ES</span><span lang="en">EN</span></button>
+      <button class="nav__toggle" id="toggle" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+        <span></span><span></span>
+      </button>
+    </div>
   </header>
 
   <main id="top">
@@ -81,19 +85,19 @@
       </button>
 
       <div class="wrap hero__body">
-        <p class="eyebrow">Productora audiovisual — Santo Domingo, RD</p>
-        <h1 class="hero__title">Ideas que se vuelven <em>historias</em> que dejan huella.</h1>
-        <p class="hero__text">Video, postproducción y fotografía para marcas como Wendy’s, Pizza Hut y Häagen-Dazs — y para personas que quieren verse como se sienten.</p>
+        <p class="eyebrow" data-i18n="hero.eyebrow">Productora audiovisual — Santo Domingo, RD</p>
+        <h1 class="hero__title" data-i18n="hero.title">Ideas que se vuelven <em>historias</em> que dejan huella.</h1>
+        <p class="hero__text" data-i18n="hero.text">Video, postproducción y fotografía para marcas como Wendy’s, Pizza Hut y Häagen-Dazs — y para personas que quieren verse como se sienten.</p>
         <div class="hero__cta">
-          <a class="btn" href="#trabajo">Ver trabajo</a>
-          <a class="btn btn--ghost" data-wa href="https://wa.me/18295602997" target="_blank" rel="noopener">Cotizar un proyecto</a>
+          <a class="btn" href="#trabajo" data-i18n="hero.see">Ver trabajo</a>
+          <a class="btn btn--ghost" data-wa href="https://wa.me/18295602997" target="_blank" rel="noopener" data-i18n="hero.quote">Cotizar un proyecto</a>
         </div>
       </div>
     </section>
 
     <!-- CLIENTES -->
     <section class="clients" aria-labelledby="clientsTitle">
-      <h2 class="label wrap" id="clientsTitle">Marcas y equipos con los que hemos trabajado</h2>
+      <h2 class="label wrap" id="clientsTitle" data-i18n="clients.title">Marcas y equipos con los que hemos trabajado</h2>
       <div class="marquee"><ul class="marquee__track" id="clients"><li>Wendy’s</li><li>Pizza Hut</li><li>Häagen-Dazs</li><li>Banco LAFISE</li><li>Viamar</li><li>Manzanas Washington</li><li>Bodas A La Moda</li><li>By Oriana Lucas</li><li>Hoenn</li></ul></div>
     </section>
 
@@ -101,10 +105,10 @@
     <section class="section" id="trabajo">
       <div class="wrap">
         <header class="head reveal">
-          <p class="label">Trabajo</p>
-          <h2 class="title">Proyectos seleccionados</h2>
+          <p class="label" data-i18n="work.label">Trabajo</p>
+          <h2 class="title" data-i18n="work.title">Proyectos seleccionados</h2>
         </header>
-        <div class="chips reveal" id="chips" role="group" aria-label="Filtrar por categoría"></div>
+        <div class="chips reveal" id="chips" role="group" aria-label="Filtrar por categoría" data-i18n-label="work.filter"></div>
         <div class="grid" id="grid">
           <a class="card reveal card--big" href="https://www.instagram.com/reel/DZqhDx_pwn-/" target="_blank" rel="noopener" data-type="video" data-full="assets/work/DZqhDx_pwn-.jpg" data-title="Wendy’s — Lanzamiento Tenders" data-meta="Cobertura de evento · con Hoenn" data-year="2026">
             <img src="assets/work/thumb/DZqhDx_pwn-.webp" alt="Wendy’s — Lanzamiento Tenders — Cobertura de evento · con Hoenn" loading="lazy" decoding="async" width="540" height="960">
@@ -214,21 +218,21 @@
     <section class="section section--alt" id="servicios">
       <div class="wrap">
         <header class="head reveal">
-          <p class="label">Servicios</p>
-          <h2 class="title">Del guion al último frame</h2>
+          <p class="label" data-i18n="services.label">Servicios</p>
+          <h2 class="title" data-i18n="services.title">Del guion al último frame</h2>
         </header>
         <ol class="services">
           <li class="reveal">
-            <h3>Dirección y filmación</h3>
-            <p>Comerciales, lanzamientos de producto, cobertura de eventos y contenido para redes, con una mirada cinematográfica de principio a fin.</p>
+            <h3 data-i18n="s1.title">Dirección y filmación</h3>
+            <p data-i18n="s1.text">Comerciales, lanzamientos de producto, cobertura de eventos y contenido para redes, con una mirada cinematográfica de principio a fin.</p>
           </li>
           <li class="reveal">
-            <h3>Postproducción</h3>
-            <p>Edición, corrección de color y diseño sonoro para que cada pieza tenga ritmo, intención y acabado profesional.</p>
+            <h3 data-i18n="s2.title">Postproducción</h3>
+            <p data-i18n="s2.text">Edición, corrección de color y diseño sonoro para que cada pieza tenga ritmo, intención y acabado profesional.</p>
           </li>
           <li class="reveal">
-            <h3>Fotografía</h3>
-            <p>Gastronomía, producto, moda y retrato editorial. Imágenes pensadas para campañas, portadas y redes sociales.</p>
+            <h3 data-i18n="s3.title">Fotografía</h3>
+            <p data-i18n="s3.text">Gastronomía, producto, moda y retrato editorial. Imágenes pensadas para campañas, portadas y redes sociales.</p>
           </li>
         </ol>
       </div>
@@ -237,8 +241,8 @@
     <!-- TESTIMONIO -->
     <section class="quote">
       <figure class="wrap reveal">
-        <blockquote>“¿Sesión de fotos sin gozo? <em>¡Eso no existe!</em>”</blockquote>
-        <figcaption>— ¡Qué Chévere es Saber!, sobre su sesión con In Frame · <a href="https://www.instagram.com/reel/DPUr9v3Cprw/" target="_blank" rel="noopener">ver publicación ↗</a></figcaption>
+        <blockquote data-i18n="quote.text">“¿Sesión de fotos sin gozo? <em>¡Eso no existe!</em>”</blockquote>
+        <figcaption data-i18n="quote.cite">— ¡Qué Chévere es Saber!, sobre su sesión con In Frame · <a href="https://www.instagram.com/reel/DPUr9v3Cprw/" target="_blank" rel="noopener">ver publicación ↗</a></figcaption>
       </figure>
     </section>
 
@@ -246,12 +250,12 @@
     <section class="section" id="sobre-mi">
       <div class="wrap about">
         <header class="head reveal">
-          <p class="label">Sobre mí</p>
-          <h2 class="title">Juan Soriano<br><em>detrás del lente.</em></h2>
+          <p class="label" data-i18n="about.label">Sobre mí</p>
+          <h2 class="title" data-i18n="about.title">Juan Soriano<br><em>detrás del lente.</em></h2>
         </header>
         <div class="about__body reveal">
-          <p class="about__lead">Soy filmmaker, postproductor y fotógrafo dominicano. In Frame es mi productora audiovisual en Santo Domingo.</p>
-          <p>He estado detrás de la cámara en lanzamientos, campañas y coberturas para marcas de consumo, portadas de revista y sesiones editoriales — muchas de ellas de la mano de agencias como Hoenn. Me mueve lo mismo en todos: una narrativa auténtica y atención al detalle.</p>
+          <p class="about__lead" data-i18n="about.lead">Soy filmmaker, postproductor y fotógrafo dominicano. In Frame es mi productora audiovisual en Santo Domingo.</p>
+          <p data-i18n="about.text">He estado detrás de la cámara en lanzamientos, campañas y coberturas para marcas de consumo, portadas de revista y sesiones editoriales — muchas de ellas de la mano de agencias como Hoenn. Me mueve lo mismo en todos: una narrativa auténtica y atención al detalle.</p>
           <div class="about__links">
             <a href="https://www.instagram.com/inframe.rd" target="_blank" rel="noopener">@inframe.rd ↗</a>
             <a href="https://www.instagram.com/juansorianoph" target="_blank" rel="noopener">@juansorianoph ↗</a>
@@ -263,14 +267,14 @@
     <!-- CONTACTO -->
     <section class="section contact" id="contacto">
       <div class="wrap">
-        <p class="label reveal">Contacto</p>
-        <h2 class="contact__title reveal">¿Tienes un proyecto<br>en mente? <em>Hablemos.</em></h2>
+        <p class="label reveal" data-i18n="contact.label">Contacto</p>
+        <h2 class="contact__title reveal" data-i18n="contact.title">¿Tienes un proyecto<br>en mente? <em>Hablemos.</em></h2>
         <div class="contact__cta reveal">
-          <a class="btn btn--lg" data-wa href="https://wa.me/18295602997" target="_blank" rel="noopener">Escribir por WhatsApp</a>
-          <span class="contact__note">Santo Domingo, República Dominicana</span>
+          <a class="btn btn--lg" data-wa href="https://wa.me/18295602997" target="_blank" rel="noopener" data-i18n="contact.wa">Escribir por WhatsApp</a>
+          <span class="contact__note" data-i18n="contact.note">Santo Domingo, República Dominicana</span>
         </div>
         <ul class="channels reveal">
-          <li><a href="mailto:juansor92@gmail.com?subject=Proyecto%20audiovisual"><small>Correo</small><span>juansor92@gmail.com</span><i>↗</i></a></li>
+          <li><a href="mailto:juansor92@gmail.com?subject=Proyecto%20audiovisual"><small data-i18n="contact.email">Correo</small><span>juansor92@gmail.com</span><i>↗</i></a></li>
           <li><a data-wa href="https://wa.me/18295602997" target="_blank" rel="noopener"><small>WhatsApp</small><span>+1 (829) 560-2997</span><i>↗</i></a></li>
           <li><a href="https://www.instagram.com/inframe.rd" target="_blank" rel="noopener"><small>Instagram</small><span>@inframe.rd</span><i>↗</i></a></li>
         </ul>
@@ -281,14 +285,14 @@
   <footer class="footer">
     <div class="wrap footer__row">
       <span>© <span id="year">2026</span> In Frame · Juan Soriano</span>
-      <a href="#top">Volver arriba ↑</a>
+      <a href="#top" data-i18n="footer.top">Volver arriba ↑</a>
     </div>
   </footer>
 
   <!-- LIGHTBOX -->
-  <dialog class="lightbox" id="lightbox" aria-label="Visor de proyecto">
-    <button class="lightbox__close" id="lbClose" type="button" aria-label="Cerrar">✕</button>
-    <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" type="button" aria-label="Anterior">←</button>
+  <dialog class="lightbox" id="lightbox" aria-label="Visor de proyecto" data-i18n-label="lb.label">
+    <button class="lightbox__close" id="lbClose" type="button" aria-label="Cerrar" data-i18n-label="lb.close">✕</button>
+    <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" type="button" aria-label="Anterior" data-i18n-label="lb.prev">←</button>
     <figure class="lightbox__fig">
       <div class="lightbox__media" id="lbMedia"></div>
       <figcaption aria-live="polite">
@@ -298,10 +302,11 @@
         <a id="lbLink" target="_blank" rel="noopener">Ver en Instagram ↗</a>
       </figcaption>
     </figure>
-    <button class="lightbox__nav lightbox__nav--next" id="lbNext" type="button" aria-label="Siguiente">→</button>
+    <button class="lightbox__nav lightbox__nav--next" id="lbNext" type="button" aria-label="Siguiente" data-i18n-label="lb.next">→</button>
   </dialog>
 
   <script src="config.js" defer></script>
+  <script src="i18n.js" defer></script>
   <script src="main.js" defer></script>
 </body>
 </html>

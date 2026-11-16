@@ -27,7 +27,8 @@ To remove access, delete their row from `admins` (or delete the user).
 
 ## Editing everything else
 
-- **Texts** (hero, services, bio, quote, contact) — directly in `index.html`.
+- **Texts** (hero, services, bio, quote, contact) — Spanish directly in `index.html`; the English version of each is in `i18n.js` (same key as the element's `data-i18n`).
+- **English for projects** — optional "Título en inglés" and "Detalle en inglés" fields in `/admin`; when empty, the Spanish text is shown. The visitor switches language with ES | EN in the top bar, and `?lang=en` in the address opens the site in English.
 - **WhatsApp** — `WHATSAPP` (number with country code) and `WA_MESSAGE` at the top of `main.js`.
 - **Domain** — if the site moves, update the canonical, `og:url` and `og:image` URLs in the `<head>` of `index.html`.
 
