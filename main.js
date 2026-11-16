@@ -72,8 +72,11 @@ renderWall(WALL);
 
 /* ---------- Clients marquee (list duplicated once for a seamless loop) ---------- */
 const clients = $("#clients");
-function renderClients(names) {
-  if (names) clients.innerHTML = names.map((n) => `<li>${esc(n)}</li>`).join("");
+/* list: [{ name, logo }] — a client with a logo shows the logo (name as its alt text), otherwise the name */
+function renderClients(list) {
+  if (list) clients.innerHTML = list.map((c) => c.logo
+    ? `<li class="has-logo"><img src="${esc(c.logo)}" alt="${esc(c.name)}" decoding="async"></li>`
+    : `<li>${esc(c.name)}</li>`).join("");
   $$("li", clients).forEach((li) => {
     const copy = li.cloneNode(true);
     copy.setAttribute("aria-hidden", "true");
@@ -148,7 +151,7 @@ async function loadLive() {
   try {
     const [rows, names, extra] = await Promise.all([
       get("projects?select=id,title,meta,year,type,link,cover_url,thumb_url,featured,in_hero&published=is.true&order=position.asc"),
-      get("clients?select=name&order=position.asc"),
+      get("clients?select=name,logo_url&order=position.asc"),
       get("project_media?select=project_id,kind,url&order=position.asc").catch(() => []), // galleries are optional
     ]);
     if (rows.length) {
@@ -159,8 +162,9 @@ async function loadLive() {
       const hero = live.filter((p) => p.inHero);
       renderWall((hero.length >= 3 ? hero : live).map((p) => p.thumb));
     }
-    const liveNames = names.map((n) => n.name);
-    if (liveNames.length && liveNames.join("|") !== staticClients.join("|")) renderClients(liveNames);
+    const liveClients = names.map((n) => ({ name: n.name, logo: n.logo_url || "" }));
+    const changed = liveClients.some((c) => c.logo) || liveClients.map((c) => c.name).join("|") !== staticClients.join("|");
+    if (liveClients.length && changed) renderClients(liveClients);
   } catch (e) { /* offline or database unreachable: the built-in content stays */ }
 }
 loadLive();

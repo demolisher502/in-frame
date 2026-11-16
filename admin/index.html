@@ -68,10 +68,11 @@
         <div class="panel__head">
           <div>
             <h2>Clientes</h2>
-            <p class="hint">Los nombres que pasan en la franja debajo de la portada.</p>
+            <p class="hint">Los clientes que pasan en la franja debajo de la portada. Si tienen logo, se muestra el logo; si no, el nombre. Usa un PNG con fondo transparente: el logo se muestra en blanco, como el texto.</p>
           </div>
         </div>
         <ul class="rows rows--clients" id="clientRows"></ul>
+        <input type="file" id="logoFile" accept="image/png,image/webp,image/jpeg" hidden>
         <form class="add" id="clientForm">
           <label class="sr" for="clientName">Nombre del cliente</label>
           <input id="clientName" maxlength="80" placeholder="Nombre del cliente" required>

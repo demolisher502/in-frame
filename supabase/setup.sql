@@ -37,7 +37,9 @@ create table public.clients (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(name) between 1 and 80),
   position int not null default 0,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- optional logo shown in the marquee instead of the name (uploaded to media/logos/)
+  logo_url text check (logo_url is null or logo_url ~ '^https://')
 );
 create index clients_position_idx on public.clients (position);
 alter table public.clients enable row level security;

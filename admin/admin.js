@@ -375,8 +375,11 @@ async function loadClients() {
 function renderClients() {
   $("#clientRows").innerHTML = clients.map((c, i) => `
     <li class="row" data-id="${c.id}">
+      <div class="logo">${c.logo_url ? `<img src="${esc(c.logo_url)}" alt="Logo de ${esc(c.name)}">` : "<span>Sin logo</span>"}</div>
       <div><label class="sr" for="c-${c.id}">Nombre</label><input id="c-${c.id}" value="${esc(c.name)}" maxlength="80"></div>
       <div class="row__actions">
+        <button class="btn btn--ghost" type="button" data-act="logo">${c.logo_url ? "Cambiar logo" : "Subir logo"}</button>
+        ${c.logo_url ? `<button class="icon" type="button" data-act="nologo" aria-label="Quitar el logo de ${esc(c.name)}" title="Quitar logo">⌫</button>` : ""}
         <button class="icon" type="button" data-act="up" aria-label="Subir ${esc(c.name)}" ${i === 0 ? "disabled" : ""}>↑</button>
         <button class="icon" type="button" data-act="down" aria-label="Bajar ${esc(c.name)}" ${i === clients.length - 1 ? "disabled" : ""}>↓</button>
         <button class="icon icon--danger" type="button" data-act="delete" aria-label="Eliminar ${esc(c.name)}">✕</button>
@@ -400,13 +403,51 @@ $("#clientRows").addEventListener("click", async (e) => {
   const c = clients[i];
   const act = btn.dataset.act;
   if (act === "up" || act === "down") return move("clients", clients, i, act === "up" ? -1 : 1, renderClients);
+  if (act === "logo") { logoFor = c; return $("#logoFile").click(); }
+  if (act === "nologo") {
+    if (!confirm(`¿Quitar el logo de “${c.name}”? Se volverá a mostrar el nombre.`)) return;
+    const { error } = await sb.from("clients").update({ logo_url: null }).eq("id", c.id);
+    if (error) return fail(error, "quitar el logo");
+    removeUploads([c.logo_url]);
+    c.logo_url = null;
+    renderClients();
+    return toast("Logo quitado");
+  }
   if (!confirm(`¿Quitar “${c.name}” de la lista de clientes?`)) return;
   const { error } = await sb.from("clients").delete().eq("id", c.id);
   if (error) return fail(error, "quitar el cliente");
+  removeUploads([c.logo_url]);
   clients.splice(i, 1);
   renderClients();
   toast("Cliente quitado");
 });
+/* logos: resized in the browser to WebP (transparency kept), stored in media/logos/ */
+let logoFor = null;
+$("#logoFile").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  const c = logoFor;
+  logoFor = null;
+  if (!file || !c) return;
+  if (file.size > 25 * 1024 * 1024) return toast("La imagen pesa más de 25 MB. Exporta una versión más liviana.", true);
+  toast("Subiendo logo…");
+  try {
+    const blob = await toWebp(file, 800, 0.9);
+    const path = `logos/${crypto.randomUUID()}.webp`;
+    const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: "image/webp", cacheControl: "31536000" });
+    if (up.error) throw up.error;
+    const logo_url = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    const { error } = await sb.from("clients").update({ logo_url }).eq("id", c.id);
+    if (error) { removeUploads([logo_url]); throw error; }
+    removeUploads([c.logo_url]);
+    c.logo_url = logo_url;
+    renderClients();
+    toast("Logo guardado. Ya está en el sitio.");
+  } catch (error) {
+    fail(error, "subir el logo");
+  }
+});
+
 $("#clientForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const input = $("#clientName");
