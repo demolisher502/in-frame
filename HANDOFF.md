@@ -33,7 +33,7 @@ Run locally with `npx serve .` — the local copy talks to the same live databas
 
 ## Database
 
-Created by two migrations, visible in the Supabase dashboard under Database → Migrations (`portfolio_content`, `project_media`).
+Created by two migrations, visible in the Supabase dashboard under Database → Migrations (`portfolio_content`, `project_media`). The same structure, plus the starting content, is in `supabase/setup.sql`; keep that file up to date when the structure changes.
 
 - `projects` — title, meta, year, type (`video`/`foto`/`retrato`), link, cover and thumbnail URLs, flags `published`/`featured`/`in_hero`, `position`.
 - `project_media` — gallery items per project: `kind` (`photo`/`video`), `url`, `thumb_url`, `position`. Deleted with their project.
@@ -67,6 +67,8 @@ Granting access (also in the README):
 - Supabase's "leaked password protection" is off (Authentication → Sign In / Providers → Email).
 
 ## Taking ownership
+
+There are two ways. **Option A, your own copy:** create your own Supabase project and Vercel deployment from this repo. `supabase/setup.sql` rebuilds the whole database with the starting content, and `supabase/README.md` has the steps. Nothing needs transferring, but your copy is independent of the original. **Option B, take over the existing ones:** the steps below.
 
 1. **GitHub** — the current owner adds you as collaborator, or transfers the repo (Settings → Danger Zone).
 2. **Supabase** — have the project transferred to your organization (Project Settings → General → Transfer project). The URL and key stay the same, so nothing in the code changes. Do not recreate it; that would mean moving data, images and logins by hand.
