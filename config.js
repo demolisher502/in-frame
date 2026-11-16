@@ -3,6 +3,6 @@
    What it can do is limited by the row-level security rules in the database:
    anyone can read published projects and clients; only users listed in `admins` can write. */
 window.IF_CONFIG = {
-  supabaseUrl: "https://unzalqzksrfzwymaqrbr.supabase.co",
-  supabaseKey: "sb_publishable_g3dOB0ypBRl8anIXd_9DCg_T7cHrxdJ",
+  supabaseUrl: "https://tlbkpdnaxqlmtmyumiki.supabase.co",
+  supabaseKey: "sb_publishable_2_nl8FIAgSFy1cX5Ml1OrQ_AKb-C70D",
 };
